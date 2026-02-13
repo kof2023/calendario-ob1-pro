@@ -32,6 +32,33 @@
         .ot-badge { background: #fde68a; color: #92400e; padding: 2px 4px; border-radius: 4px; font-size: 8px; font-weight: 900; position: absolute; bottom: 4px; left: 4px; }
         .scroll-hide::-webkit-scrollbar { display: none; }
         .nav-btn.active { color: #059669; }
+    
+        .report-btn {
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border: 1px solid #e2e8f0;
+        }
+        .report-btn:active { transform: scale(0.95); }
+    
+        .flexi-badge {
+            background: #fdf2f8;
+            color: #be185d;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 900;
+            position: absolute;
+            top: 4px;
+            right: 4px;
+        }
     </style>
 </head>
 <body class="overflow-hidden">
@@ -72,11 +99,12 @@
                     <div class="flex justify-between items-end mb-2 text-left"><span id="stats-month-name" class="text-xl font-bold text-slate-800">--</span><span class="text-slate-500 font-bold"><span id="stats-done-days">0</span>/<span id="stats-total-days">--</span> días</span></div>
                     <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden"><div id="stats-progress-bar" class="h-full bg-emerald-500 rounded-full" style="width: 0%"></div></div>
                 </div>
-                <div class="grid grid-cols-2 gap-3 text-center">
+                <div class="grid grid-cols-3 gap-2 text-center">
                     <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-sun text-amber-500 mb-1"></i><span id="count-mañanas" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Mañanas</span></div>
                     <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-moon text-indigo-500 mb-1"></i><span id="count-tardes" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Tardes</span></div>
                     <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-umbrella-beach text-emerald-500 mb-1"></i><span id="count-vacas" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Vacas</span></div>
                     <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-clock text-blue-500 mb-1"></i><span id="count-ot-hours" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Horas OT</span></div>
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-bolt text-pink-500 mb-1"></i><span id="count-flexi-hours" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Horas Flexi</span></div>
                 </div>
                 <button onclick="if(confirm('¿Borrar todos tus cambios?')) {localStorage.clear(); location.reload();}" class="w-full py-4 text-slate-400 font-bold text-[10px] uppercase border-2 border-dashed border-slate-100 rounded-2xl">Reiniciar App</button>
             </div>
@@ -85,8 +113,19 @@
             <div id="tab-notes" class="tab-content h-full p-6 overflow-y-auto scroll-hide pb-32">
                 <div class="flex justify-between items-center mb-6">
                     <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest italic">Registro de Actividad</p>
-                    <button onclick="exportBackup()" class="text-emerald-600 font-bold text-[10px] uppercase"><i class="fas fa-download mr-1"></i> Backup</button>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="exportBackup()" class="text-emerald-600 font-bold text-[10px] uppercase text-right"><i class="fas fa-file-code mr-1"></i> Backup JSON</button>
+                    </div>
                 </div>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <button onclick="downloadCSV('OT')" class="report-btn bg-blue-50 text-blue-700">
+                        <i class="fas fa-clock"></i> Informe OT
+                    </button>
+                    <button onclick="downloadCSV('VACAS')" class="report-btn bg-emerald-50 text-emerald-700">
+                        <i class="fas fa-umbrella-beach"></i> Informe Vacas
+                    </button>
+                <button onclick="downloadCSV('FLEXI')" class="report-btn bg-pink-50 text-pink-700"><i class="fas fa-bolt"></i> Informe Flexi</button>                </div>
                 <div id="notes-list" class="space-y-3"></div>
             </div>
         </div>
@@ -114,7 +153,11 @@
                 <button onclick="deleteChanges()" id="delete-btn" class="hidden text-rose-500 bg-rose-50 px-3 py-2 rounded-xl flex items-center gap-2 active:scale-95"><i class="fas fa-trash-alt text-xs"></i><span class="text-[10px] font-black uppercase">Borrar</span></button>
             </div>
             <div class="mb-4">
-                <div class="flex justify-between items-center mb-3"><p class="text-slate-400 text-[10px] font-black uppercase tracking-widest italic text-left">Cambiar estado</p><div id="ot-hours-container" class="hidden flex items-center gap-2 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100 shadow-sm"><span class="text-[9px] font-black text-blue-700 uppercase italic">Horas OT:</span><input type="number" id="ot-hours-input" class="w-8 bg-transparent text-sm font-black text-blue-800 border-none p-0 focus:ring-0 text-center" value="8"></div></div>
+                <div class="flex justify-between items-center mb-3"><p class="text-slate-400 text-[10px] font-black uppercase tracking-widest italic text-left">Cambiar estado</p><div id="ot-hours-container" class="hidden flex items-center gap-2 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100 shadow-sm"><span class="text-[9px] font-black text-blue-700 uppercase italic">Horas OT:</span><input type="number" id="ot-hours-input" class="w-8 bg-transparent text-sm font-black text-blue-800 border-none p-0 focus:ring-0 text-center" value="8"></div>
+                        <div id="flexi-container" class="flex items-center gap-2 bg-pink-50 px-2 py-1 rounded-lg border border-pink-100 shadow-sm">
+                            <span class="text-[9px] font-black text-pink-700 uppercase italic">Flexi (MFT):</span>
+                            <input type="number" id="flexi-input" step="0.5" min="0" max="1" class="w-8 bg-transparent text-sm font-black text-pink-800 border-none p-0 focus:ring-0 text-center" value="0">
+                        </div></div>
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="setDayType('🌅')" id="btn-M" class="status-btn"><span>🌅</span><span class="text-xs font-bold text-slate-700 uppercase tracking-tighter">Mañana</span></button>
                     <button onclick="setDayType('🌆')" id="btn-T" class="status-btn"><span>🌆</span><span class="text-xs font-bold text-slate-700 uppercase tracking-tighter">Tarde</span></button>
@@ -173,7 +216,7 @@
                 const badgeClass = (txt === 'Mañana') ? 'status-badge day-label-sm' : 'status-badge';
                 card.innerHTML = '<span class="text-[9px] font-black text-slate-800 absolute top-1.5 left-1.5">' + d.day + '</span>' +
                     '<span class="' + badgeClass + ' ' + col + '">' + txt + '</span>' +
-                    (ch.isOT ? '<div class="ot-badge">OT</div>' : '') +
+                    (ch.isOT ? '<div class="ot-badge">OT</div>' : '') + (ch.flexiHours > 0 ? '<div class="flexi-badge">FLX</div>' : '') +
                     (ch.note ? '<div class="has-note-dot"></div>' : '');
                 grid.appendChild(card);
             });
@@ -182,7 +225,7 @@
         }
 
         function openEditModal(key, day, month, type, note, isOT, otHours) {
-            selectedDayKey = key; currentSelectedType = isOT ? 'OT' : type;
+            selectedDayKey = key; selectedDayKey = key; document.getElementById("flexi-input").value = userChanges[key]?.flexiHours || 0; document.getElementById("flexi-container").classList.toggle("hidden", !(type === "🌅" || type === "🌆")); currentSelectedType = isOT ? 'OT' : type;
             document.getElementById('modal-date').innerText = day + ' de ' + month;
             document.getElementById('note-input').value = note;
             document.getElementById('note-section').classList.remove('visible');
@@ -213,7 +256,7 @@
             const isOT = (currentSelectedType === 'OT');
             const mData = initialShifts[monthNames[currentMonthIdx]] || [];
             const template = mData.find(d => d.day == selectedDayKey.split('-')[2]);
-            userChanges[selectedDayKey] = { type: isOT ? template.shift : currentSelectedType, isOT: isOT, otHours: isOT ? parseInt(document.getElementById('ot-hours-input').value) : 0, note: document.getElementById('note-input').value };
+            userChanges[selectedDayKey] = { type: isOT ? template.shift : currentSelectedType, isOT: isOT, otHours: isOT ? parseInt(document.getElementById('ot-hours-input').value) : 0, note: document.getElementById('note-input').value, flexiHours: parseFloat(document.getElementById('flexi-input').value) || 0 };
             localStorage.setItem('ob1_v3_data', JSON.stringify(userChanges));
             closeModal(); renderCalendar();
         }
@@ -225,7 +268,7 @@
         }
 
         function renderStats() {
-            let otTotal = 0; Object.values(userChanges).forEach(v => { if (v.isOT) otTotal += (v.otHours || 0); });
+            let otTotal = 0; let flexiTotal = 0; Object.values(userChanges).forEach(v => { if (v.isOT) otTotal += (v.otHours || 0); if (v.flexiHours) flexiTotal += v.flexiHours; });
             document.getElementById('year-ot-hours').innerText = otTotal;
             document.getElementById('year-rem-count').innerText = (80 - otTotal) + "h quedan";
             document.getElementById('year-ot-progress').style.width = (otTotal / 80 * 100) + '%';
@@ -241,7 +284,7 @@
             document.getElementById('count-mañanas').innerText = c['🌅'];
             document.getElementById('count-tardes').innerText = c['🌆'];
             document.getElementById('count-vacas').innerText = c['🏖️'];
-            document.getElementById('count-ot-hours').innerText = c['OT'];
+            document.getElementById('count-ot-hours').innerText = c['OT']; document.getElementById('count-flexi-hours').innerText = flexiTotal;
             document.getElementById('stats-done-days').innerText = c['🌅'] + c['🌆'];
             document.getElementById('stats-total-days').innerText = daysArr.length;
             document.getElementById('stats-progress-bar').style.width = ((c['🌅'] + c['🌆']) / (daysArr.length || 1) * 100) + '%';
@@ -275,6 +318,37 @@
             document.getElementById('next-shift').innerText = (map[shift] || 'Libre') + (ch.isOT ? ' + Overtime' : '');
         }
 
+        
+        function downloadCSV(type) {
+            let csv = 'Fecha,Turno,Detalle,Flexi (h),Notas\n';
+            let found = false;
+            
+            Object.keys(userChanges).sort().forEach(key => {
+                const data = userChanges[key];
+                const parts = key.split('-');
+                const dateStr = parts[2] + '/' + (parseInt(parts[1])+1) + '/' + parts[0];
+                
+                if (type === 'OT' && data.isOT) {
+                    csv += `${dateStr},${data.type},Overtime: ${data.otHours}h,${data.flexiHours || 0},"${data.note || ''}"\n`;
+                    found = true;
+                } else if (type === 'FLEXI' && data.flexiHours > 0) { csv += `${dateStr},${data.type},Flexi Hour,${data.flexiHours},"${data.note || ''}"\n`; found = true; } else if (type === 'VACAS' && data.type === '🏖️') {
+                    csv += `${dateStr},Vacaciones,Día de Vacas,"${data.note || ''}"\n`;
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                alert('No hay datos registrados para este informe.');
+                return;
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `informe_${type.toLowerCase()}_ob1.csv`);
+            link.click();
+        }
         function exportBackup() {
             const data = localStorage.getItem('ob1_v3_data');
             const blob = new Blob([data], {type: 'application/json'});
@@ -285,4 +359,4 @@
         renderCalendar();
     </script>
 </body>
-</html>
+    </html>
