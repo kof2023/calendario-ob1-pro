@@ -9,96 +9,97 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         :root { --safe-area-top: env(safe-area-inset-top); --safe-area-bottom: env(safe-area-inset-bottom); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
         .tab-content { display: none; }
         .tab-content.active { display: flex; flex-direction: column; }
-        .day-card { transition: all 0.2s; cursor: pointer; min-height: 60px; position: relative; overflow: hidden; }
-        .day-card:active { transform: scale(0.92); }
+        .day-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; min-height: 60px; position: relative; overflow: hidden; }
+        .day-card:active { transform: scale(0.92); filter: brightness(0.95); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); z-index: 100; align-items: flex-end; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: #fff; border-radius: 32px 32px 0 0; width: 100%; max-width: 500px; padding: 24px; animation: slideUp 0.3s ease-out forwards; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .status-btn { border: 1.5px solid #f1f5f9; transition: all 0.2s; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: #fff; }
-        .status-btn.selected { border-color: #10b981; background-color: #ecfdf5; }
+        .modal-content { background: #fff; border-radius: 32px 32px 0 0; width: 100%; max-width: 500px; padding: 24px; padding-bottom: calc(24px + var(--safe-area-bottom)); transform: translateY(100%); animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp { to { transform: translateY(0); } }
+        .status-btn { border: 1.5px solid #f1f5f9; transition: all 0.2s; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: #fff; text-align: left; width: 100%; }
+        .status-btn.selected { border-color: #10b981; background-color: #ecfdf5; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1); }
         .has-note-dot { position: absolute; bottom: 4px; right: 4px; width: 5px; height: 5px; background: #ef4444; border-radius: 50%; }
-        .status-badge { font-size: 7px; font-weight: 800; text-transform: uppercase; margin-top: 2px; white-space: nowrap; width: 100%; text-align: center; }
+        .nav-btn.active { color: #059669; }
+        .nav-btn.active i { transform: translateY(-2px); color: #059669; }
+        .scroll-hide::-webkit-scrollbar { display: none; }
+        .status-badge { font-size: 7px; font-weight: 800; text-transform: uppercase; margin-top: 2px; letter-spacing: -0.01em; white-space: nowrap; width: 100%; text-align: center; }
         .day-label-sm { font-size: 6.5px; }
         .ot-badge { background: #fde68a; color: #92400e; padding: 2px 4px; border-radius: 4px; font-size: 8px; font-weight: 900; position: absolute; bottom: 4px; left: 4px; }
-        .note-input-container { transition: max-height 0.3s; overflow: hidden; max-height: 0; }
+        .note-input-container { transition: max-height 0.3s ease-out; overflow: hidden; max-height: 0; }
         .note-input-container.visible { max-height: 200px; }
     </style>
 </head>
 <body class="overflow-hidden">
-    <div id="app" class="flex flex-col h-screen max-w-md mx-auto bg-white shadow-2xl">
-        <!-- HEADER -->
-        <div class="bg-emerald-600 px-6 pt-10 pb-6 rounded-b-[40px] shadow-xl">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-calendar-alt text-white text-2xl"></i>
-                    <div>
-                        <h2 class="text-white font-black text-lg">Grupo OB1</h2>
-                        <p class="text-emerald-100 text-[10px] font-bold uppercase tracking-widest">Amazon MAD9 • 2026</p>
+    <div id="app" class="flex flex-col h-screen max-w-md mx-auto bg-[#f8fafc] relative shadow-2xl">
+        <div class="flex-1 overflow-hidden">
+            <!-- TAB CALENDARIO -->
+            <div id="tab-calendar" class="tab-content active h-full">
+                <div class="bg-emerald-600 px-6 pt-10 pb-6 rounded-b-[40px] shadow-xl">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30"><i class="fas fa-calendar-alt text-white"></i></div>
+                            <div><h2 class="text-white font-extrabold text-lg tracking-tight">Grupo OB1</h2><p class="text-emerald-100 text-[10px] font-medium opacity-80 uppercase tracking-widest">Calendario 2026</p></div>
+                        </div>
+                        <div class="text-right text-white"><span id="header-work-days" class="font-black text-2xl block">--</span><span class="text-[8px] font-bold uppercase tracking-tighter">días trabajo</span></div>
                     </div>
                 </div>
-                <div class="text-right text-white">
-                    <span id="header-work-days" class="font-black text-2xl">0</span>
-                    <span class="text-[8px] uppercase block">Días trabajo</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- TABS -->
-        <div class="flex-1 overflow-hidden">
-            <div id="tab-calendar" class="tab-content active h-full">
                 <div class="flex justify-between items-center px-8 py-4">
-                    <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shadow-sm"><i class="fas fa-chevron-left"></i></button>
-                    <span id="month-display" class="text-xl font-black text-slate-800">Enero</span>
-                    <button onclick="changeMonth(1)" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shadow-sm"><i class="fas fa-chevron-right"></i></button>
+                    <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100"><i class="fas fa-chevron-left"></i></button>
+                    <div class="text-center"><span id="month-display" class="block text-xl font-black text-slate-800 tracking-tighter">Enero</span><span class="text-slate-400 text-[9px] font-bold uppercase tracking-widest">• 2026 •</span></div>
+                    <button onclick="changeMonth(1)" class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-800 shadow-sm border border-slate-100"><i class="fas fa-chevron-right"></i></button>
                 </div>
                 <div class="grid grid-cols-7 gap-1 px-4 mb-2 opacity-50 italic">
-                    <div class="text-center text-[9px] font-black">LU</div><div class="text-center text-[9px] font-black">MA</div><div class="text-center text-[9px] font-black">MI</div><div class="text-center text-[9px] font-black">JU</div><div class="text-center text-[9px] font-black">VI</div><div class="text-center text-[9px] font-black">SÁ</div><div class="text-center text-[9px] font-black text-rose-500">DO</div>
+                    <div class="text-center text-[9px] font-black text-slate-300">LU</div><div class="text-center text-[9px] font-black text-slate-300">MA</div><div class="text-center text-[9px] font-black text-slate-300">MI</div><div class="text-center text-[9px] font-black text-slate-300">JU</div><div class="text-center text-[9px] font-black text-slate-300">VI</div><div class="text-center text-[9px] font-black text-rose-300">SÁ</div><div class="text-center text-[9px] font-black text-rose-300">DO</div>
                 </div>
-                <div class="flex-1 overflow-y-auto px-4 scroll-hide pb-32">
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
-                </div>
+                <div class="flex-1 overflow-y-auto px-4 scroll-hide pb-32"><div id="calendar-grid" class="grid grid-cols-7 gap-2"></div></div>
             </div>
 
+            <!-- TAB DASHBOARD -->
             <div id="tab-stats" class="tab-content h-full p-6 space-y-4">
-                <div class="bg-slate-900 p-6 rounded-[30px] text-center text-white border border-white/10">
+                <div class="bg-slate-900 p-6 rounded-[30px] border border-white/10 text-center text-white">
                     <p class="text-slate-400 text-[10px] font-black uppercase mb-1">Overtime Anual</p>
-                    <h3 class="text-2xl font-black italic">80h LÍMITE</h3>
-                    <div class="flex justify-between items-end mt-4"><span class="text-emerald-400 font-bold text-xs"><span id="year-ot">0</span>h usadas</span><span id="year-rem" class="text-slate-500 text-xs">80h quedan</span></div>
+                    <h3 class="text-2xl font-black italic">LÍMITE 80 HORAS</h3>
+                    <div class="flex justify-between items-end mt-4"><span class="text-emerald-400 font-bold text-xs"><span id="year-ot">0</span>h usadas</span><span id="year-rem" class="text-slate-500 text-xs">--h quedan</span></div>
                     <div class="w-full h-2 bg-white/10 rounded-full mt-2 overflow-hidden"><div id="year-bar" class="h-full bg-amber-500 rounded-full" style="width:0%"></div></div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-sun text-amber-500 mb-2"></i><span id="count-M" class="text-xl font-black">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Mañanas</span></div>
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-moon text-indigo-500 mb-2"></i><span id="count-T" class="text-xl font-black">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Tardes</span></div>
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-umbrella-beach text-emerald-500 mb-2"></i><span id="count-V" class="text-xl font-black">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Vacas</span></div>
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center"><i class="fas fa-clock text-blue-500 mb-2"></i><span id="count-OT" class="text-xl font-black">0</span><span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Horas OT</span></div>
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-50 flex flex-col items-center"><i class="fas fa-sun text-amber-500 mb-1"></i><span id="count-M" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase">Mañanas</span></div>
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-50 flex flex-col items-center"><i class="fas fa-moon text-indigo-500 mb-1"></i><span id="count-T" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase">Tardes</span></div>
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-50 flex flex-col items-center"><i class="fas fa-umbrella-beach text-emerald-500 mb-1"></i><span id="count-V" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase">Vacas</span></div>
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-50 flex flex-col items-center"><i class="fas fa-clock text-blue-500 mb-1"></i><span id="count-OT" class="text-xl font-black text-slate-800">0</span><span class="text-[8px] font-bold text-slate-400 uppercase">Horas OT</span></div>
                 </div>
             </div>
 
-            <div id="tab-notes" class="tab-content h-full p-6 overflow-y-auto scroll-hide pb-32" id="notes-list"></div>
+            <!-- TAB CONTROL -->
+            <div id="tab-notes" class="tab-content h-full p-6 overflow-y-auto scroll-hide pb-32" id="notes-list-container">
+                <div id="notes-list"></div>
+            </div>
         </div>
 
-        <!-- NAV -->
+        <!-- NAVIGATION -->
         <div class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-lg border-t border-slate-100 p-4 flex justify-around items-center z-40">
             <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn active flex flex-col items-center gap-1"><i class="fas fa-calendar-alt text-lg"></i><span class="text-[8px] font-black uppercase">Mes</span></button>
-            <button onclick="switchTab('stats')" id="nav-stats" class="nav-btn flex flex-col items-center gap-1"><i class="fas fa-chart-bar text-lg"></i><span class="text-[8px] font-black uppercase text-center">Dashboard</span></button>
-            <button onclick="switchTab('notes')" id="nav-notes" class="nav-btn flex flex-col items-center gap-1"><i class="fas fa-history text-lg"></i><span class="text-[8px] font-black uppercase text-center">Control</span></button>
+            <button onclick="switchTab('stats')" id="nav-stats" class="nav-btn flex flex-col items-center gap-1"><i class="fas fa-chart-bar text-lg"></i><span class="text-[8px] font-black uppercase">Stats</span></button>
+            <button onclick="switchTab('notes')" id="nav-notes" class="nav-btn flex flex-col items-center gap-1"><i class="fas fa-history text-lg"></i><span class="text-[8px] font-black uppercase">Control</span></button>
         </div>
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL EDITAR DÍA -->
     <div id="edit-modal" class="modal" onclick="if(event.target == this) closeModal()">
         <div class="modal-content">
             <div class="flex justify-between items-start mb-6">
-                <div><h3 id="modal-date" class="text-2xl font-black text-slate-900 tracking-tighter">-- --</h3><span id="modal-badge" class="bg-slate-100 px-2 py-0.5 rounded-full text-[9px] font-black text-slate-600 uppercase">--</span></div>
-                <button onclick="deleteChanges()" id="delete-btn" class="hidden text-rose-500 bg-rose-50 px-3 py-2 rounded-xl flex items-center gap-2"><i class="fas fa-trash-alt text-xs"></i><span class="text-[10px] font-black">BORRAR</span></button>
+                <div><h3 id="modal-date" class="text-2xl font-black text-slate-900 tracking-tighter">-- --</h3><span id="modal-badge" class="bg-slate-100 px-2 py-0.5 rounded-full text-[9px] font-black text-slate-600 uppercase italic">--</span></div>
+                <button onclick="deleteChanges()" id="delete-btn" class="hidden text-rose-500 bg-rose-50 px-3 py-2 rounded-xl flex items-center gap-2 active:scale-95 transition-all"><i class="fas fa-undo text-xs"></i><span class="text-[10px] font-black">RESTAURAR</span></button>
             </div>
-            <div class="mb-4">
-                <div class="flex justify-between items-center mb-3"><p class="text-slate-400 text-[10px] font-black uppercase tracking-widest italic">Cambiar estado del día</p><div id="ot-hours-container" class="hidden flex items-center gap-2 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100"><span class="text-[9px] font-black text-blue-700 uppercase">Horas:</span><input type="number" id="ot-hours-input" class="w-8 bg-transparent text-sm font-black text-blue-800 border-none p-0 focus:ring-0" value="8"></div></div>
-                <div class="grid grid-cols-2 gap-2">
+            
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Cambiar estado del día</p>
+                    <div id="ot-hours-container" class="hidden flex items-center gap-2 bg-blue-50 px-2 py-1 rounded-xl"><span class="text-[9px] font-black text-blue-700">HORAS:</span><input type="number" id="ot-hours-input" class="w-10 bg-transparent text-sm font-black text-blue-800 border-none p-0 focus:ring-0 text-center" value="8"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
                     <button onclick="setDayType('🌅')" id="btn-M" class="status-btn"><span>🌅</span><span class="text-xs font-bold text-slate-700">Mañana</span></button>
                     <button onclick="setDayType('🌆')" id="btn-T" class="status-btn"><span>🌆</span><span class="text-xs font-bold text-slate-700">Tarde</span></button>
                     <button onclick="setDayType('😴')" id="btn-L" class="status-btn"><span>😴</span><span class="text-xs font-bold text-slate-700">Libre</span></button>
@@ -109,26 +110,21 @@
                     <button onclick="setDayType('OT')" id="btn-OT" class="status-btn border-blue-200"><span>⏰</span><span class="text-xs font-black text-blue-800">Overtime</span></button>
                 </div>
             </div>
-            <div id="note-section" class="note-input-container mb-6"><textarea id="note-input" class="w-full h-20 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="Escribe algo..."></textarea></div>
-            <div class="grid grid-cols-2 gap-3"><button onclick="toggleNote()" class="py-4 bg-slate-50 text-slate-600 font-bold rounded-2xl flex items-center justify-center gap-2">Nota</button><button onclick="saveChanges()" class="py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-600/20">GUARDAR</button></div>
+
+            <div id="note-section" class="note-input-container mb-6">
+                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">+ Nota personal</p>
+                <textarea id="note-input" class="w-full h-24 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="Escribe aquí..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="toggleNote()" class="py-4 bg-slate-50 text-slate-600 font-bold rounded-2xl flex items-center justify-center gap-2">Nota</button>
+                <button onclick="saveChanges()" class="py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-600/20 active:scale-95">GUARDAR</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const initialShifts = {
-          "Enero": [{"day":"1","shift":"🎉"},{"day":"2","shift":"😴"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"😴"},{"day":"6","shift":"🎉"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"😴"},{"day":"10","shift":"🌅"},{"day":"11","shift":"🌅"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"😴"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"😴"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"🌅"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌆"}],
-          "Febrero": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"😴"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🏖️"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"😴"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"}],
-          "Marzo": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"😴"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌅"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌆"}],
-          "Abril": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🎉"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"🌅"},{"day":"7","shift":"🌅"},{"day":"8","shift":"😴"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"😴"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"😴"},{"day":"19","shift":"😴"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"😴"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"😴"}],
-          "Mayo": [{"day":"1","shift":"🎉"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🌅"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"😴"},{"day":"10","shift":"😴"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🌆"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"😴"},{"day":"17","shift":"😴"},{"day":"18","shift":"🌅"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"🌆"},{"day":"28","shift":"😴"},{"day":"29","shift":"😴"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌅"}],
-          "Junio": [{"day":"1","shift":"🌅"},{"day":"2","shift":"🌅"},{"day":"3","shift":"😴"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"😴"},{"day":"7","shift":"😴"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🌆"},{"day":"13","shift":"😴"},{"day":"14","shift":"😴"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"😴"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"🌅"},{"day":"30","shift":"🌅"}],
-          "Julio": [{"day":"1","shift":"😴"},{"day":"2","shift":"🌅"},{"day":"3","shift":"🌅"},{"day":"4","shift":"😴"},{"day":"5","shift":"😴"},{"day":"6","shift":"🌆"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"😴"},{"day":"12","shift":"😴"},{"day":"13","shift":"🌅"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"😴"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"😴"},{"day":"24","shift":"😴"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌅"},{"day":"29","shift":"😴"},{"day":"30","shift":"🌅"},{"day":"31","shift":"🌅"}],
-          "Agosto": [{"day":"1","shift":"😴"},{"day":"2","shift":"😴"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"🌆"},{"day":"6","shift":"🎉"},{"day":"7","shift":"🌆"},{"day":"8","shift":"😴"},{"day":"9","shift":"😴"},{"day":"10","shift":"🌅"},{"day":"11","shift":"🌅"},{"day":"12","shift":"🌅"},{"day":"13","shift":"😴"},{"day":"14","shift":"😴"},{"day":"15","shift":"🎉"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"😴"},{"day":"21","shift":"😴"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"😴"},{"day":"30","shift":"😴"}],
-          "Septiembre": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌆"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"🌆"},{"day":"17","shift":"😴"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"🌅"},{"day":"23","shift":"😴"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"😴"},{"day":"27","shift":"😴"},{"day":"28","shift":"😴"},{"day":"29","shift":"🌆"},{"day":"30","shift":"🌆"}],
-          "Octubre": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"🌅"},{"day":"6","shift":"🌅"},{"day":"7","shift":"🌅"},{"day":"8","shift":"😴"},{"day":"9","shift":"🎉"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🎉"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"😴"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"😴"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"😴"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌆"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"🌆"},{"day":"31","shift":"😴"}],
-          "Noviembre": [{"day":"1","shift":"😴"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🌅"},{"day":"4","shift":"🌅"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"😴"},{"day":"13","shift":"😴"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"🌅"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"🌆"},{"day":"28","shift":"😴"},{"day":"29","shift":"😴"}],
-          "Diciembre": [{"day":"1","shift":"🌅"},{"day":"2","shift":"🌅"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"🌆"},{"day":"6","shift":"🌆"},{"day":"7","shift":"🎉"},{"day":"8","shift":"🎉"},{"day":"9","shift":"🌆"},{"day":"10","shift":"😴"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"😴"},{"day":"20","shift":"😴"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"😴"},{"day":"25","shift":"🎉"},{"day":"26","shift":"😴"},{"day":"27","shift":"😴"},{"day":"28","shift":"😴"},{"day":"29","shift":"🌅"},{"day":"30","shift":"🌅"},{"day":"31","shift":"🌅"}]
-        };
+        const initialShifts = {"Enero":[{"day":"1","shift":"🎉"},{"day":"2","shift":"😴"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"😴"},{"day":"6","shift":"🎉"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"😴"},{"day":"10","shift":"🌅"},{"day":"11","shift":"🌅"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"😴"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"😴"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"🌅"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌆"}],"Febrero":[{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"😴"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🏖️"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"😴"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"}],"Marzo":[{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"😴"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌅"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌆"}],"Abril":[{"day":"1","shift":"🌆"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🎉"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"🌅"},{"day":"7","shift":"🌅"},{"day":"8","shift":"😴"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"😴"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"😴"},{"day":"19","shift":"😴"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"😴"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"😴"}],"Mayo":[{"day":"1","shift":"🎉"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🌅"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"😴"},{"day":"10","shift":"😴"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🌆"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"😴"},{"day":"17","shift":"😴"},{"day":"18","shift":"🌅"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"🌆"},{"day":"28","shift":"😴"},{"day":"29","shift":"😴"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌅"}],"Junio":[{"day":"1","shift":"🌅"},{"day":"2","shift":"🌅"},{"day":"3","shift":"😴"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"😴"},{"day":"7","shift":"😴"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🌆"},{"day":"13","shift":"😴"},{"day":"14","shift":"😴"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"😴"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"🌅"},{"day":"30","shift":"🌅"}],"Julio":[{"day":"1","shift":"😴"},{"day":"2","shift":"🌅"},{"day":"3","shift":"🌅"},{"day":"4","shift":"😴"},{"day":"5","shift":"😴"},{"day":"6","shift":"🌆"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"😴"},{"day":"12","shift":"😴"},{"day":"13","shift":"🌅"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"😴"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"😴"},{"day":"24","shift":"😴"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌅"},{"day":"29","shift":"😴"},{"day":"30","shift":"🌅"},{"day":"31","shift":"🌅"}],"Agosto":[{"day":"1","shift":"😴"},{"day":"2","shift":"😴"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"🌆"},{"day":"6","shift":"🎉"},{"day":"7","shift":"🌆"},{"day":"8","shift":"😴"},{"day":"9","shift":"😴"},{"day":"10","shift":"🌅"},{"day":"11","shift":"🌅"},{"day":"12","shift":"🌅"},{"day":"13","shift":"😴"},{"day":"14","shift":"😴"},{"day":"15","shift":"🎉"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"😴"},{"day":"21","shift":"😴"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"😴"},{"day":"30","shift":"😴"}],"Septiembre":[{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌆"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"🌆"},{"day":"17","shift":"😴"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"🌅"},{"day":"23","shift":"😴"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"😴"},{"day":"27","shift":"😴"},{"day":"28","shift":"😴"},{"day":"29","shift":"🌆"},{"day":"30","shift":"🌆"}],"Octubre":[{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"🌅"},{"day":"6","shift":"🌅"},{"day":"7","shift":"🌅"},{"day":"8","shift":"😴"},{"day":"9","shift":"🎉"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🎉"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"😴"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"😴"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"😴"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌆"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"🌆"},{"day":"31","shift":"😴"}],"Noviembre":[{"day":"1","shift":"😴"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🌅"},{"day":"4","shift":"🌅"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"😴"},{"day":"13","shift":"😴"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"🌅"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"🌆"},{"day":"28","shift":"😴"},{"day":"29","shift":"😴"}],"Diciembre":[{"day":"1","shift":"🌅"},{"day":"2","shift":"🌅"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"🌆"},{"day":"6","shift":"🌆"},{"day":"7","shift":"🎉"},{"day":"8","shift":"🎉"},{"day":"9","shift":"🌆"},{"day":"10","shift":"😴"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"😴"},{"day":"20","shift":"😴"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"😴"},{"day":"25","shift":"🎉"},{"day":"26","shift":"😴"},{"day":"27","shift":"😴"},{"day":"28","shift":"😴"},{"day":"29","shift":"🌅"},{"day":"30","shift":"🌅"},{"day":"31","shift":"🌅"}]};
 
         const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         let currentMonthIdx = new Date().getMonth();
@@ -165,6 +161,7 @@
                 else if (shift === '🏖️') { bg = 'bg-emerald-50'; col = 'text-emerald-500'; txt = 'Vacas'; }
                 else if (shift === '🤒') { bg = 'bg-rose-50'; col = 'text-rose-500'; txt = 'Baja'; }
                 else if (shift === '🎉') { bg = 'bg-red-50'; col = 'text-red-500'; txt = 'Festo'; }
+                else if (shift === '📋') { bg = 'bg-sky-50'; col = 'text-sky-500'; txt = 'Permi'; }
 
                 card.className = `day-card rounded-2xl flex flex-col items-center justify-center border border-slate-100 shadow-sm ${bg}`;
                 card.onclick = () => openEditModal(key, d.day, m, shift, ch.note || "", ch.isOT, ch.otHours);
@@ -178,20 +175,24 @@
         }
 
         function openEditModal(key, day, month, type, note, isOT, otHours) {
-            selectedDayKey = key; currentSelectedType = type;
-            document.getElementById('modal-date').innerText = `${day} ${month}`;
+            selectedDayKey = key;
+            currentSelectedType = isOT ? 'OT' : type;
+            document.getElementById('modal-date').innerText = `${day} de ${month}`;
             document.getElementById('note-input').value = note;
             document.getElementById('note-section').classList.remove('visible');
-            document.getElementById('delete-btn').style.display = userChanges[key] ? 'block' : 'none';
-            document.getElementById('modal-badge').innerText = isOT ? 'Overtime' : type;
+            document.getElementById('delete-btn').style.display = userChanges[key] ? 'flex' : 'none';
+            
+            const badgeMap = { '🌅': 'Mañana', '🌆': 'Tarde', '😴': 'Libre', '🎉': 'Festivo', '🏖️': 'Vacaciones', '🤒': 'Baja Médica', '📋': 'Permiso' };
+            document.getElementById('modal-badge').innerText = isOT ? 'Overtime' : (badgeMap[type] || 'Libre');
+            document.getElementById('modal-current-badge').innerText = isOT ? 'Overtime' : (badgeMap[type] || 'Libre');
 
-            if (isOT) {
-                document.getElementById('ot-hours-container').classList.remove('hidden');
-                document.getElementById('ot-hours-input').value = otHours || 8;
-                setDayType('OT');
-            } else {
-                setDayType(type);
-            }
+            document.getElementById('ot-hours-container').classList.toggle('hidden', !isOT);
+            if (isOT) document.getElementById('ot-hours-input').value = otHours || 8;
+            
+            document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('selected'));
+            const btnMap = { '🌅': 'btn-M', '🌆': 'btn-T', '😴': 'btn-L', '🎉': 'btn-F', '🏖️': 'btn-V', '🤒': 'btn-B', '📋': 'btn-P', 'OT': 'btn-OT' };
+            if (btnMap[currentSelectedType]) document.getElementById(btnMap[currentSelectedType]).classList.add('selected');
+            
             document.getElementById('edit-modal').classList.add('active');
         }
 
@@ -233,24 +234,20 @@
             document.getElementById('year-rem').innerText = (80 - otTotal) + "h quedan";
             document.getElementById('year-bar').style.width = `${(otTotal / 80) * 100}%`;
             
-            const monthName = monthNames[currentMonthIdx];
-            document.getElementById('stats-month-name').innerText = monthName;
-            const templateDays = initialShifts[monthName] || [];
-            let counts = { '🌅': 0, '🌆': 0, '🏖️': 0, '🤒': 0, 'OT': 0 };
-            templateDays.forEach(d => {
+            const m = monthNames[currentMonthIdx];
+            const days = initialShifts[m] || [];
+            let c = { '🌅':0, '🌆':0, '🏖️':0, 'OT':0 };
+            days.forEach(d => {
                 const key = `2026-${currentMonthIdx}-${d.day}`;
                 const val = userChanges[key] || {};
                 const type = val.type || d.shift;
-                if (counts.hasOwnProperty(type)) counts[type]++;
-                if (val.isOT) counts['OT'] += (val.otHours || 0);
+                if (c.hasOwnProperty(type)) c[type]++;
+                if (val.isOT) c['OT'] += (val.otHours || 0);
             });
-            document.getElementById('count-M').innerText = counts['🌅'];
-            document.getElementById('count-T').innerText = counts['🌆'];
-            document.getElementById('count-V').innerText = counts['🏖️'];
-            document.getElementById('count-OT').innerText = counts['OT'];
-            document.getElementById('stats-done-days').innerText = counts['🌅'] + counts['🌆'];
-            document.getElementById('stats-total-days').innerText = templateDays.length;
-            document.getElementById('stats-progress-bar').style.width = `${((counts['🌅'] + counts['🌆']) / templateDays.length) * 100}%`;
+            document.getElementById('count-M').innerText = c['🌅'];
+            document.getElementById('count-T').innerText = c['🌆'];
+            document.getElementById('count-V').innerText = c['🏖️'];
+            document.getElementById('count-OT').innerText = c['OT'];
         }
 
         function renderControl() {
@@ -272,12 +269,7 @@
         }
 
         function updateQuickStatus() {
-            const now = new Date();
-            const key = `2026-${now.getMonth()}-${now.getDate()}`;
-            const change = userChanges[key] || {};
-            const shift = change.type || (initialShifts[monthNames[now.getMonth()]]?.find(d => d.day == now.getDate())?.shift || '😴');
-            const map = { '🌅': 'Mañana', '🌆': 'Tarde', '😴': 'Libre', '🏖️': 'Vacas', '🤒': 'Baja', '🎉': 'Festivo', '📋': 'Permiso', 'OT': 'OT' };
-            document.getElementById('next-shift').innerText = (map[shift] || 'Libre') + (change.isOT ? " + OT" : "");
+            // Logic for quick status here
         }
 
         renderCalendar();
