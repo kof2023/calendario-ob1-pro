@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <title>OB1 Calendario Pro</title>
+    <title>OB1 Calendario Pro v7</title>
+    <!-- V7_NAV_FIX -->
     <link rel="manifest" href="manifest.json">
     <script>
         if ("serviceWorker" in navigator) {
@@ -62,7 +63,7 @@
     </style>
 </head>
 <body class="overflow-hidden">
-    <div id="app" class="flex flex-col h-screen max-w-md mx-auto bg-[#f8fafc] relative shadow-2xl">
+    <div id="app" class="flex flex-col h-[100dvh] max-w-md mx-auto bg-[#f8fafc] relative shadow-2xl">
         <div class="flex-1 overflow-hidden">
             <!-- TAB CALENDARIO -->
 
@@ -152,7 +153,7 @@
                 </div>
             </div>
 
-        <div class="bg-white border-t border-slate-100 px-8 py-4 flex justify-between items-center z-20">
+        <div class="bg-white border-t border-slate-200 px-8 pt-3 pb-[calc(1.2rem+env(safe-area-inset-bottom))] flex justify-between items-center z-50 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
             <button id="nav-calendar" onclick="switchTab('calendar')" class="nav-btn active flex flex-col items-center gap-1">
                 <i class="fas fa-calendar-alt text-xl text-emerald-600"></i>
                 <span class="text-[9px] font-black uppercase tracking-tighter">Calendario</span>

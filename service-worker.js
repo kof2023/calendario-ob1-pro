@@ -1,7 +1,8 @@
-const CACHE_NAME = 'ob1-v6-final';
+const CACHE_NAME = 'ob1-v7-nav-fix';
 const ASSETS = [
   './',
-  './index.html'
+  './index.html',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (e) => {
