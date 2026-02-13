@@ -19,10 +19,12 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install -g eas-cli
 
       - name: Build APK
-        run: npx eas build --platform android --profile preview --non-interactive --local
+        run: eas build --platform android --profile preview --non-interactive --local
         env:
           EAS_LOCAL_BUILD_SKIP_TOOL_CHECK: 1
 

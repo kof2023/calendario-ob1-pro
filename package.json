@@ -18,7 +18,8 @@
     "react-native-screens": "~4.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2"
+    "@babel/core": "^7.25.2",
+    "eas-cli": "^14.1.0"
   },
   "private": true
 }
