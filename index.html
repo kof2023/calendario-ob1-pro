@@ -110,48 +110,49 @@
                 
             </div>
 
+            
             <!-- TAB CONTROL -->
             <div id="tab-notes" class="tab-content h-full p-6 overflow-y-auto scroll-hide pb-32">
-                <div class="flex justify-between items-center mb-6">
-                    
-                <div class="mb-4">
-                    <button onclick="if(confirm('¿ESTÁS SEGURO? Esto borrará tus notas y horas extra guardadas para siempre.')) {localStorage.clear(); location.reload();}" class="w-full py-3 bg-rose-50 text-rose-600 font-black text-[11px] uppercase border-2 border-rose-100 rounded-2xl shadow-sm">
-                        <i class="fas fa-sync-alt mr-2"></i> REINICIAR Y LIMPIAR APP
-                    </button>
-                    <p class="text-center text-[8px] text-rose-400 mt-2 font-bold italic">Usa esto si no ves el calendario actualizado</p>
+                <div class="text-center mb-6">
+                    <h2 class="text-slate-800 text-lg font-black tracking-tighter italic uppercase mb-1">Centro de Control</h2>
+                    <p class="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Gestiona tus datos e informes</p>
                 </div>
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest italic">Registro de Actividad</p>
-                    <div class="flex flex-col gap-2">
-                        <button onclick="exportBackup()" class="text-emerald-600 font-bold text-[10px] uppercase text-right"><i class="fas fa-file-code mr-1"></i> Backup JSON</button>
+
+                <!-- SECCIÓN INFORMES -->
+                <div class="bg-white p-5 rounded-[28px] shadow-sm border border-slate-100 mb-6 text-left">
+                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i class="fas fa-file-invoice text-emerald-500"></i> Descargar Informes
+                    </p>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <button onclick="downloadCSV('OT')" class="report-btn bg-blue-50 text-blue-700 border-blue-100">
+                            <i class="fas fa-clock"></i> Informe OT
+                        </button>
+                        <button onclick="downloadCSV('VACAS')" class="report-btn bg-emerald-50 text-emerald-700 border-emerald-100">
+                            <i class="fas fa-umbrella-beach"></i> Informe Vacas
+                        </button>
                     </div>
+                    <button onclick="downloadCSV('FLEXI')" class="report-btn bg-pink-50 text-pink-700 border-pink-100 w-full py-4">
+                        <i class="fas fa-bolt"></i> Informe Flexi (MFT)
+                    </button>
                 </div>
-                
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <button onclick="downloadCSV('OT')" class="report-btn bg-blue-50 text-blue-700">
-                        <i class="fas fa-clock"></i> Informe OT
-                    </button>
-                    <button onclick="downloadCSV('VACAS')" class="report-btn bg-emerald-50 text-emerald-700">
-                        <i class="fas fa-umbrella-beach"></i> Informe Vacas
-                    </button>
-                <button onclick="downloadCSV('FLEXI')" class="report-btn bg-pink-50 text-pink-700"><i class="fas fa-bolt"></i> Informe Flexi</button>                </div>
-                <div id="notes-list" class="space-y-3"></div>
-            </div>
-        </div>
 
-        <div class="fixed bottom-24 inset-x-6 z-20">
-            <div class="bg-slate-900 p-4 rounded-2xl flex items-center justify-between shadow-2xl border border-white/10 text-left">
-                <div class="flex flex-col"><span class="text-slate-400 text-[8px] font-black uppercase tracking-widest tracking-tighter">Hoy</span><span id="next-shift" class="text-white font-black text-sm">--</span></div>
-                <i class="fas fa-bolt text-amber-400"></i>
-            </div>
-        </div>
+                <!-- SECCIÓN DATOS -->
+                <div class="grid grid-cols-2 gap-3 mb-8">
+                    <button onclick="exportBackup()" class="report-btn bg-slate-50 text-slate-600">
+                        <i class="fas fa-file-code text-emerald-600"></i> Backup JSON
+                    </button>
+                    <button onclick="if(confirm('¿ESTÁS SEGURO? Se borrarán tus notas y extras guardadas.')) {localStorage.clear(); location.reload();}" class="report-btn bg-rose-50 text-rose-600 border-rose-100">
+                        <i class="fas fa-sync-alt"></i> Resetear App
+                    </button>
+                </div>
 
-        <!-- NAV -->
-        <div class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-100 p-4 flex justify-around items-center z-40 pb-10">
-            <button id="nav-calendar" onclick="switchTab('calendar')" class="nav-btn active flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-calendar-alt text-lg"></i><span class="text-[8px] font-black uppercase">Mes</span></button>
-            <button id="nav-stats" onclick="switchTab('stats')" class="nav-btn flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-chart-bar text-lg"></i><span class="text-[8px] font-black uppercase text-center">Stats</span></button>
-            <button id="nav-notes" onclick="switchTab('notes')" class="nav-btn flex flex-col items-center gap-1 text-slate-400"><i class="fas fa-history text-lg"></i><span class="text-[8px] font-black uppercase text-center">Control</span></button>
+                <div class="border-t border-slate-100 pt-6">
+                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4 italic">Historial Reciente</p>
+                    <div id="notes-list" class="space-y-3"></div>
+                </div>
+            </div>
+
         </div>
-    </div>
 
     <!-- MODAL -->
     <div id="edit-modal" class="modal" onclick="if(event.target == this) closeModal()">
