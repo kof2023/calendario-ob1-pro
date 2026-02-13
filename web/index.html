@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>OB1 Calendario Pro 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+        .day-card { transition: transform 0.2s; }
+        .day-card:active { transform: scale(0.95); }
+        .scroll-area { height: calc(100vh - 120px); overflow-y: auto; padding-bottom: 80px; }
+        ::-webkit-scrollbar { width: 0; }
+    </style>
+</head>
+<body>
+    <div id="app" class="flex flex-col h-screen">
+        <!-- Header -->
+        <div class="bg-emerald-600 p-6 rounded-b-[30px] shadow-lg">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-white font-bold text-xl">Grupo OB1</h2>
+                    <p class="text-emerald-100 text-sm">Amazon MAD9 • 2026</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Month Selector -->
+        <div class="flex justify-between items-center px-8 py-6">
+            <button onclick="changeMonth(-1)" class="w-12 h-12 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+                <i class="fas fa-chevron-left fa-lg"></i>
+            </button>
+            <div class="text-center">
+                <span id="month-name" class="block text-2xl font-bold text-slate-800">Enero</span>
+                <span class="text-slate-400 text-sm">2026</span>
+            </div>
+            <button onclick="changeMonth(1)" class="w-12 h-12 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+                <i class="fas fa-chevron-right fa-lg"></i>
+            </button>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="scroll-area px-4">
+            <div id="calendar-grid" class="grid grid-cols-4 gap-3">
+                <!-- Days will be injected here -->
+            </div>
+
+            <!-- Legend -->
+            <div class="mt-8 flex flex-wrap justify-center gap-4 pb-20">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-amber-50 rounded-md flex items-center justify-center"><i class="fas fa-sun text-[10px] text-amber-500"></i></div>
+                    <span class="text-xs font-medium text-slate-600">Mañana</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-indigo-50 rounded-md flex items-center justify-center"><i class="fas fa-moon text-[10px] text-indigo-600"></i></div>
+                    <span class="text-xs font-medium text-slate-600">Tarde</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-slate-100 rounded-md flex items-center justify-center"><i class="fas fa-coffee text-[10px] text-slate-400"></i></div>
+                    <span class="text-xs font-medium text-slate-600">Libre</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-red-50 rounded-md flex items-center justify-center"><i class="fas fa-birthday-cake text-[10px] text-red-500"></i></div>
+                    <span class="text-xs font-medium text-slate-600">Festivo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Action -->
+        <div class="fixed bottom-6 left-6 right-6">
+            <div class="bg-slate-800 p-4 rounded-2xl flex items-center justify-center shadow-2xl">
+                <span id="next-shift" class="text-white font-bold text-sm">Próximo turno: Cargando...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const shiftsData = {
+          "Enero": [{"day":"1","shift":"🎉"},{"day":"2","shift":"😴"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"😴"},{"day":"6","shift":"🎉"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"😴"},{"day":"10","shift":"🌅"},{"day":"11","shift":"🌅"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"😴"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"😴"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"🌅"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌆"}],
+          "Febrero": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"😴"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🏖️"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"😴"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"}],
+          "Marzo": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"😴"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌅"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌆"}],
+          "Abril": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🎉"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"🌅"},{"day":"7","shift":"🌅"},{"day":"8","shift":"😴"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"😴"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"😴"},{"day":"19","shift":"😴"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"😴"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"😴"}],
+          "Mayo": [{"day":"1","shift":"🎉"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🌅"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"😴"},{"day":"10","shift":"😴"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🌆"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"😴"},{"day":"17","shift":"😴"},{"day":"18","shift":"🌅"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"🌆"},{"day":"28","shift":"😴"},{"day":"29","shift":"😴"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌅"}],
+          "Junio": [{"day":"1","shift":"🌅"},{"day":"2","shift":"🌅"},{"day":"3","shift":"😴"},{"day":"4","shift":"🌅"},{"day":"5","shift":"🌅"},{"day":"6","shift":"😴"},{"day":"7","shift":"😴"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🌆"},{"day":"13","shift":"😴"},{"day":"14","shift":"😴"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"😴"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"🌅"},{"day":"30","shift":"🌅"}],
+          "Julio": [{"day":"1","shift":"😴"},{"day":"2","shift":"🌅"},{"day":"3","shift":"🌅"},{"day":"4","shift":"😴"},{"day":"5","shift":"😴"},{"day":"6","shift":"🌆"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"😴"},{"day":"12","shift":"😴"},{"day":"13","shift":"🌅"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"😴"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"😴"},{"day":"24","shift":"😴"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌅"},{"day":"29","shift":"😴"},{"day":"30","shift":"🌅"},{"day":"31","shift":"🌅"}],
+          "Agosto": [{"day":"1","shift":"😴"},{"day":"2","shift":"😴"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"🌆"},{"day":"6","shift":"🎉"},{"day":"7","shift":"🌆"},{"day":"8","shift":"😴"},{"day":"9","shift":"😴"},{"day":"10","shift":"🌅"},{"day":"11","shift":"🌅"},{"day":"12","shift":"🌅"},{"day":"13","shift":"😴"},{"day":"14","shift":"😴"},{"day":"15","shift":"🎉"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"😴"},{"day":"21","shift":"😴"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"😴"},{"day":"30","shift":"😴"}],
+          "Septiembre": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌆"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"🌆"},{"day":"16","shift":"🌆"},{"day":"17","shift":"😴"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"🌅"},{"day":"22","shift":"🌅"},{"day":"23","shift":"😴"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"😴"},{"day":"27","shift":"😴"},{"day":"28","shift":"😴"},{"day":"29","shift":"🌆"},{"day":"30","shift":"🌆"}],
+          "Octubre": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"🌅"},{"day":"6","shift":"🌅"},{"day":"7","shift":"🌅"},{"day":"8","shift":"😴"},{"day":"9","shift":"🎉"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"🎉"},{"day":"13","shift":"🌆"},{"day":"14","shift":"🌆"},{"day":"15","shift":"😴"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"😴"},{"day":"22","shift":"🌅"},{"day":"23","shift":"🌅"},{"day":"24","shift":"😴"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌆"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"🌆"},{"day":"31","shift":"😴"}],
+          "Noviembre": [{"day":"1","shift":"😴"},{"day":"2","shift":"🎉"},{"day":"3","shift":"🌅"},{"day":"4","shift":"🌅"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"🌆"},{"day":"10","shift":"🌆"},{"day":"11","shift":"🌆"},{"day":"12","shift":"😴"},{"day":"13","shift":"😴"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"🌅"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌅"},{"day":"20","shift":"🌅"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌆"},{"day":"24","shift":"🌆"},{"day":"25","shift":"🌆"},{"day":"26","shift":"🌆"},{"day":"27","shift":"🌆"},{"day":"28","shift":"😴"},{"day":"29","shift":"😴"}],
+          "Diciembre": [{"day":"1","shift":"🌅"},{"day":"2","shift":"🌅"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"🌆"},{"day":"6","shift":"🌆"},{"day":"7","shift":"🎉"},{"day":"8","shift":"🎉"},{"day":"9","shift":"🌆"},{"day":"10","shift":"😴"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"🌅"},{"day":"15","shift":"🌅"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌅"},{"day":"18","shift":"🌅"},{"day":"19","shift":"😴"},{"day":"20","shift":"😴"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"😴"},{"day":"25","shift":"🎉"},{"day":"26","shift":"😴"},{"day":"27","shift":"😴"},{"day":"28","shift":"😴"},{"day":"29","shift":"🌅"},{"day":"30","shift":"🌅"},{"day":"31","shift":"🌅"}]
+        };
+
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        let currentMonthIdx = new Date().getMonth();
+
+        function renderCalendar() {
+            const monthName = monthNames[currentMonthIdx];
+            document.getElementById('month-name').innerText = monthName;
+            
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            
+            const days = shiftsData[monthName] || [];
+            
+            days.forEach(d => {
+                const card = document.createElement('div');
+                let bgColor = 'bg-slate-50';
+                let icon = '';
+                let iconColor = 'text-slate-400';
+
+                if (d.shift === '🌅') { bgColor = 'bg-amber-50'; icon = 'fa-sun'; iconColor = 'text-amber-500'; }
+                else if (d.shift === '🌆') { bgColor = 'bg-indigo-50'; icon = 'fa-moon'; iconColor = 'text-indigo-600'; }
+                else if (d.shift === '😴') { bgColor = 'bg-slate-100'; icon = 'fa-coffee'; iconColor = 'text-slate-400'; }
+                else if (d.shift === '🎉') { bgColor = 'bg-red-50'; icon = 'fa-birthday-cake'; iconColor = 'text-red-500'; }
+
+                card.className = `day-card aspect-square ${bgColor} rounded-2xl flex flex-col items-center justify-center shadow-sm`;
+                card.innerHTML = `<span class="font-bold text-slate-800 mb-1">${d.day}</span><i class="fas ${icon} ${iconColor}"></i>`;
+                grid.appendChild(card);
+            });
+
+            updateNextShift();
+        }
+
+        function changeMonth(step) {
+            currentMonthIdx += step;
+            if (currentMonthIdx < 0) currentMonthIdx = 11;
+            if (currentMonthIdx > 11) currentMonthIdx = 0;
+            renderCalendar();
+        }
+
+        function updateNextShift() {
+            const today = new Date();
+            const day = today.getDate();
+            const month = monthNames[today.getMonth()];
+            const monthData = shiftsData[month];
+            
+            if (monthData) {
+                const todayShift = monthData.find(d => parseInt(d.day) === day);
+                if (todayShift) {
+                    let name = todayShift.shift === '🌅' ? 'Mañana' : todayShift.shift === '🌆' ? 'Tarde' : 'Libre';
+                    document.getElementById('next-shift').innerText = `Hoy: ${name} (${day} ${month})`;
+                }
+            }
+        }
+
+        renderCalendar();
+    </script>
+</body>
+</html>
