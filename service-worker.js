@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ob1-v7-nav-fix';
+const CACHE_NAME = 'ob1-v8-final-audit';
 const ASSETS = [
   './',
   './index.html',
@@ -22,7 +22,14 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+// NETWORK FIRST strategy for index.html to avoid cache issues
 self.addEventListener('fetch', (e) => {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then((res) => res || fetch(e.request))
   );
