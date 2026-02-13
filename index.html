@@ -65,6 +65,7 @@
             padding: 12px;
             border-radius: 16px;
             background: #fff;
+            text-align: left;
         }
         .status-btn.selected { 
             border-color: #10b981; 
@@ -101,13 +102,17 @@
         .day-label-sm { font-size: 6.5px; }
 
         .ot-badge { background: #fde68a; color: #92400e; padding: 2px 4px; border-radius: 4px; font-size: 8px; font-weight: 900; position: absolute; bottom: 4px; left: 4px; }
+        
+        .note-input-container { transition: max-height 0.3s ease-out; overflow: hidden; max-height: 0; }
+        .note-input-container.visible { max-height: 200px; }
     </style>
 </head>
 <body class="overflow-hidden">
     <div id="app" class="flex flex-col h-screen max-w-md mx-auto bg-[#f8fafc] relative shadow-2xl">
         <div class="flex-1 overflow-hidden">
-            <!-- CALENDAR TAB -->
+            <!-- TAB CALENDARIO -->
             <div id="tab-calendar" class="tab-content active h-full">
+                <!-- Header -->
                 <div class="bg-emerald-600 px-6 pt-12 pb-6 rounded-b-[40px] shadow-xl">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-4">
@@ -126,37 +131,34 @@
                     </div>
                 </div>
 
+                <!-- Control de Mes -->
                 <div class="flex justify-between items-center px-8 py-6">
-                    <button onclick="changeMonth(-1)" class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 active:scale-90 transition-all">
+                    <button onclick="changeMonth(-1)" class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 active:scale-90">
                         <i class="fas fa-chevron-left"></i>
                     </button>
                     <div class="text-center">
                         <span id="month-display" class="block text-2xl font-black text-slate-800 tracking-tighter">Enero</span>
-                        <div class="flex items-center justify-center gap-1">
-                            <span class="w-1 h-1 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">2026</span>
-                            <span class="w-1 h-1 rounded-full bg-emerald-500"></span>
-                        </div>
+                        <span class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">• 2026 •</span>
                     </div>
-                    <button onclick="changeMonth(1)" class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center text-slate-800 shadow-sm border border-slate-100 active:scale-90 transition-all">
+                    <button onclick="changeMonth(1)" class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center text-slate-800 shadow-sm border border-slate-100 active:scale-90">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
 
-                <div class="grid grid-cols-7 gap-1 px-4 mb-3">
-                    <div class="text-center text-[10px] font-black text-slate-300 uppercase">Lu</div>
-                    <div class="text-center text-[10px] font-black text-slate-300 uppercase">Ma</div>
-                    <div class="text-center text-[10px] font-black text-slate-300 uppercase">Mi</div>
-                    <div class="text-center text-[10px] font-black text-slate-300 uppercase">Ju</div>
-                    <div class="text-center text-[10px] font-black text-slate-300 uppercase">Vi</div>
-                    <div class="text-center text-[10px] font-black text-rose-300 uppercase">Sá</div>
-                    <div class="text-center text-[10px] font-black text-rose-300 uppercase">Do</div>
+                <!-- Cabeceras de Día -->
+                <div class="grid grid-cols-7 gap-1 px-4 mb-3 italic">
+                    <div class="text-center text-[9px] font-black text-slate-300 uppercase">LU</div>
+                    <div class="text-center text-[9px] font-black text-slate-300 uppercase">MA</div>
+                    <div class="text-center text-[9px] font-black text-slate-300 uppercase">MI</div>
+                    <div class="text-center text-[9px] font-black text-slate-300 uppercase">JU</div>
+                    <div class="text-center text-[9px] font-black text-slate-300 uppercase">VI</div>
+                    <div class="text-center text-[9px] font-black text-rose-300 uppercase">SÁ</div>
+                    <div class="text-center text-[9px] font-black text-rose-300 uppercase">DO</div>
                 </div>
 
+                <!-- Cuadrícula -->
                 <div class="flex-1 overflow-y-auto px-4 scroll-hide pb-32">
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-2">
-                        <!-- Days injected here -->
-                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
                 </div>
             </div>
 
@@ -179,8 +181,8 @@
                     </div>
 
                     <div class="bg-white p-5 rounded-[28px] shadow-sm border border-slate-100">
-                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4">Progreso Mensual</p>
-                        <div class="flex justify-between items-end mb-2 text-left">
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-4 text-center">Progreso Mensual</p>
+                        <div class="flex justify-between items-end mb-2">
                             <span id="stats-month-name" class="text-xl font-bold text-slate-800">Febrero</span>
                             <span class="text-slate-500 font-bold"><span id="stats-done-days" class="text-emerald-600">0</span>/<span id="stats-total-days">28</span> días</span>
                         </div>
@@ -214,16 +216,17 @@
                 </div>
             </div>
 
-            <!-- NOTES TAB -->
+            <!-- CONTROL TAB -->
             <div id="tab-notes" class="tab-content h-full">
-                <div class="bg-emerald-600 px-6 pt-12 pb-6 rounded-b-[40px] shadow-xl">
-                    <h2 class="text-white font-extrabold text-2xl tracking-tight text-center">Mis Notas</h2>
+                <div class="bg-emerald-600 px-6 pt-12 pb-6 rounded-b-[40px] shadow-xl text-center">
+                    <h2 class="text-white font-extrabold text-2xl tracking-tight">Registro de Actividad</h2>
                 </div>
                 <div id="ot-list" class="px-6 py-4"></div>
-                <div id="notes-list" class="flex-1 overflow-y-auto px-6 py-2 pb-32 space-y-3 scroll-hide"></div>
+                <div id="notes-list" class="flex-1 overflow-y-auto px-6 py-2 pb-32 space-y-3 scroll-hide text-center"></div>
             </div>
         </div>
 
+        <!-- NAV BAR -->
         <div class="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-xl border-t border-slate-100 px-6 pt-3 pb-8 flex justify-around items-center z-40">
             <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn active flex flex-col items-center gap-1 transition-all">
                 <i class="fas fa-calendar-alt text-xl text-slate-400"></i>
@@ -231,60 +234,76 @@
             </button>
             <button onclick="switchTab('stats')" id="nav-stats" class="nav-btn flex flex-col items-center gap-1 transition-all">
                 <i class="fas fa-chart-pie text-xl text-slate-400"></i>
-                <span class="text-[10px] font-black uppercase text-center">Dashboard</span>
+                <span class="text-[10px] font-black uppercase">Stats</span>
             </button>
             <button onclick="switchTab('notes')" id="nav-notes" class="nav-btn flex flex-col items-center gap-1 transition-all">
-                <i class="fas fa-clock text-xl text-slate-400"></i>
-                <span class="text-[10px] font-black uppercase text-center">Control</span>
+                <i class="fas fa-history text-xl text-slate-400"></i>
+                <span class="text-[10px] font-black uppercase">Control</span>
             </button>
         </div>
     </div>
 
-    <!-- MODAL EDITAR DÍA -->
+    <!-- MODAL EDITAR DÍA (REPLICA DEL ORIGINAL) -->
     <div id="edit-modal" class="modal" onclick="if(event.target == this) closeModal()">
         <div class="modal-content">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h3 id="modal-date" class="text-3xl font-black text-slate-900 tracking-tighter">-- --</h3>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span id="modal-current-badge" class="bg-slate-100 px-2 py-0.5 rounded-full text-[9px] font-black text-slate-600 uppercase italic">--</span>
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                        <i class="fas fa-calendar-day"></i>
                     </div>
+                    <h3 id="modal-date" class="text-xl font-bold text-slate-800">Día -- de --</h3>
                 </div>
-                <button onclick="deleteChanges()" id="delete-btn" class="hidden text-rose-500 bg-rose-50 px-3 py-2 rounded-xl flex items-center gap-2 active:scale-95 transition-all">
-                    <i class="fas fa-trash-alt text-xs"></i>
-                    <span class="text-[10px] font-black">BORRAR</span>
-                </button>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500"><i class="fas fa-times fa-lg"></i></button>
             </div>
-            
-            <div class="mb-4">
-                <div class="flex items-center justify-between mb-3">
-                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Cambiar a:</p>
-                    <div id="ot-hours-container" class="hidden flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-xl shadow-sm">
-                        <span class="text-[9px] font-black text-blue-700">HORAS OT:</span>
-                        <input type="number" id="ot-hours-input" class="w-10 bg-transparent text-sm font-black text-blue-800 border-none p-0 focus:ring-0" value="8" min="1" max="12">
-                    </div>
-                </div>
-                <div id="status-grid" class="grid grid-cols-2 gap-2">
-                    <button onclick="setDayType('🌅')" id="btn-M" class="status-btn"><div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center"><i class="fas fa-sun text-amber-500"></i></div><span class="text-xs font-bold text-slate-700">Mañana</span></button>
-                    <button onclick="setDayType('🌆')" id="btn-T" class="status-btn"><div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center"><i class="fas fa-moon text-indigo-600"></i></div><span class="text-xs font-bold text-slate-700">Tarde</span></button>
-                    <button onclick="setDayType('😴')" id="btn-L" class="status-btn"><div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center"><i class="fas fa-coffee text-slate-400"></i></div><span class="text-xs font-bold text-slate-700">Libre</span></button>
-                    <button onclick="setDayType('🎉')" id="btn-F" class="status-btn"><div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center"><i class="fas fa-birthday-cake text-red-500"></i></div><span class="text-xs font-bold text-slate-700">Festivo</span></button>
-                    <button onclick="setDayType('🏖️')" id="btn-V" class="status-btn"><div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center"><i class="fas fa-umbrella-beach text-emerald-600"></i></div><span class="text-xs font-bold text-slate-700">Vacas</span></button>
-                    <button onclick="setDayType('🤒')" id="btn-B" class="status-btn"><div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center"><i class="fas fa-briefcase-medical text-rose-500"></i></div><span class="text-xs font-bold text-slate-700">Baja</span></button>
-                    <button onclick="setDayType('📋')" id="btn-P" class="status-btn"><div class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center"><i class="fas fa-clipboard-check text-sky-500"></i></div><span class="text-xs font-bold text-slate-700">Permiso</span></button>
-                    <button onclick="setDayType('OT')" id="btn-OT" class="status-btn border-blue-200"><div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center"><i class="fas fa-clock text-blue-600"></i></div><span class="text-xs font-bold text-blue-800">Overtime</span></button>
+
+            <div class="flex items-center justify-between mb-6 bg-slate-50 p-4 rounded-2xl">
+                <span class="text-slate-500 text-sm font-semibold tracking-tight">Estado actual:</span>
+                <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-sm border border-slate-100">
+                    <span id="modal-current-icon">🌅</span>
+                    <span id="modal-current-name" class="text-xs font-bold text-slate-700 uppercase tracking-tighter">Mañana</span>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">+ Nota</p>
-                <textarea id="note-input" class="w-full h-20 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="Escribe aquí..."></textarea>
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Cambiar a:</p>
+                    <div id="ot-hours-container" class="hidden flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-xl">
+                        <span class="text-[9px] font-black text-blue-700 uppercase">Horas:</span>
+                        <input type="number" id="ot-hours-input" class="w-10 bg-transparent text-sm font-black text-blue-800 border-none p-0 focus:ring-0" value="8" min="1" max="12">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="setDayType('🌅')" id="btn-M" class="status-btn"><span>🌅</span><span class="text-xs font-bold text-slate-700">Mañana</span></button>
+                    <button onclick="setDayType('🌆')" id="btn-T" class="status-btn"><span>🌆</span><span class="text-xs font-bold text-slate-700">Tarde</span></button>
+                    <button onclick="setDayType('😴')" id="btn-L" class="status-btn"><span>😴</span><span class="text-xs font-bold text-slate-700">Libre</span></button>
+                    <button onclick="setDayType('🎉')" id="btn-F" class="status-btn"><span>🎉</span><span class="text-xs font-bold text-slate-700">Festivo</span></button>
+                    <button onclick="setDayType('🏖️')" id="btn-V" class="status-btn"><span>🏖️</span><span class="text-xs font-bold text-slate-700">Vacaciones</span></button>
+                    <button onclick="setDayType('📋')" id="btn-P" class="status-btn"><span>📋</span><span class="text-xs font-bold text-slate-700">Permiso</span></button>
+                    <button onclick="setDayType('🤒')" id="btn-B" class="status-btn"><span>🤒</span><span class="text-xs font-bold text-slate-700">Baja</span></button>
+                    <button onclick="setDayType('OT')" id="btn-OT" class="status-btn border-blue-200"><span>⏰</span><span class="text-xs font-bold text-blue-800">Overtime</span></button>
+                </div>
+            </div>
+
+            <!-- Note section -->
+            <div id="note-section" class="note-input-container mb-6">
+                <textarea id="note-input" class="w-full h-24 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="Escribe tu nota aquí..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="toggleNote()" class="py-4 bg-slate-50 text-slate-600 font-bold rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <i class="fas fa-plus text-xs"></i>
+                    <span class="text-xs">Nota</span>
+                </button>
+                <button onclick="saveChanges()" class="py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-600/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-check"></i>
+                    <span class="text-xs">GUARDAR</span>
+                </button>
             </div>
             
-            <div class="flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 text-slate-500 font-black rounded-2xl active:scale-95 transition-all uppercase text-[10px]">Cerrar</button>
-                <button onclick="saveChanges()" class="flex-[2] py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-600/20 active:scale-95 transition-all uppercase text-[10px]">Guardar Cambios</button>
-            </div>
+            <button onclick="deleteChanges()" id="delete-btn" class="hidden w-full mt-3 py-3 text-rose-500 font-bold text-[10px] uppercase tracking-widest bg-rose-50 rounded-xl active:scale-95 transition-all">
+                <i class="fas fa-undo mr-2"></i> Deshacer cambios (Borrar)
+            </button>
         </div>
     </div>
 
@@ -349,8 +368,9 @@
                 else if (shift === '🤒') { bgColor = 'bg-rose-50'; iconColor = 'text-rose-500'; statusText = 'Baja'; }
                 else if (shift === '🎉') { bgColor = 'bg-red-50'; iconColor = 'text-red-500'; statusText = 'Festo'; }
                 else if (shift === '📋') { bgColor = 'bg-sky-50'; iconColor = 'text-sky-500'; statusText = 'Permi'; }
+                else if (shift === '⚙️') { bgColor = 'bg-slate-50'; iconColor = 'text-slate-400'; statusText = 'Otro'; }
 
-                card.className = `day-card rounded-xl flex flex-col items-center justify-center border border-slate-100 shadow-sm ${bgColor}`;
+                card.className = `day-card rounded-2xl flex flex-col items-center justify-center border border-slate-100 shadow-sm ${bgColor}`;
                 card.onclick = () => openEditModal(dayKey, d.day, monthName, shift, note, isOT, change.otHours);
                 
                 const badgeClass = (statusText === 'Mañana') ? 'status-badge day-label-sm' : 'status-badge';
@@ -370,11 +390,19 @@
         function openEditModal(key, day, month, type, note, isOT, otHours) {
             selectedDayKey = key;
             currentSelectedType = type;
-            document.getElementById('modal-date').innerText = `${day} ${month}`;
+            document.getElementById('modal-date').innerText = `Día ${day} de ${month}`;
             document.getElementById('note-input').value = note;
-            
+            document.getElementById('note-section').classList.remove('visible');
+
             const hasChange = userChanges[key] !== undefined;
-            document.getElementById('delete-btn').style.display = hasChange ? 'flex' : 'none';
+            document.getElementById('delete-btn').style.display = hasChange ? 'block' : 'none';
+
+            const badgeMap = { '🌅': 'Mañana', '🌆': 'Tarde', '😴': 'Libre', '🏖️': 'Vacaciones', '🤒': 'Baja Médica', '🎉': 'Festivo', '📋': 'Permiso', '⚙️': 'Otro', 'OT': 'Overtime' };
+            const iconMap = { '🌅': '🌅', '🌆': '🌆', '😴': '😴', '🏖️': '🏖️', '🤒': '🤒', '🎉': '🎉', '📋': '📋', '⚙️': '⚙️', 'OT': '⏰' };
+            
+            document.getElementById('modal-current-badge').innerText = badgeMap[type] || 'Libre';
+            document.getElementById('modal-current-name').innerText = badgeMap[type] || 'Libre';
+            document.getElementById('modal-current-icon').innerText = iconMap[type] || '😴';
 
             if (isOT) {
                 document.getElementById('ot-hours-container').classList.remove('hidden');
@@ -389,16 +417,19 @@
         }
 
         function setDayType(type) {
+            currentSelectedType = type;
             if (type === 'OT') {
                 document.getElementById('ot-hours-container').classList.remove('hidden');
-                currentSelectedType = 'OT'; 
             } else {
                 document.getElementById('ot-hours-container').classList.add('hidden');
-                currentSelectedType = type;
             }
             document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('selected'));
-            const typeBtnMap = { '🌅': 'btn-M', '🌆': 'btn-T', '😴': 'btn-L', '🎉': 'btn-F', '🏖️': 'btn-V', '🤒': 'btn-B', '📋': 'btn-P', 'OT': 'btn-OT' };
-            if (typeBtnMap[currentSelectedType]) document.getElementById(typeBtnMap[currentSelectedType]).classList.add('selected');
+            const typeBtnMap = { '🌅': 'btn-M', '🌆': 'btn-T', '😴': 'btn-L', '🎉': 'btn-F', '🏖️': 'btn-V', '🤒': 'btn-B', '📋': 'btn-P', 'OT': 'btn-OT', '⚙️': 'btn-O' };
+            if (typeBtnMap[type]) document.getElementById(typeBtnMap[type]).classList.add('selected');
+        }
+
+        function toggleNote() {
+            document.getElementById('note-section').classList.toggle('visible');
         }
 
         function saveChanges() {
@@ -431,7 +462,7 @@
             const monthName = monthNames[currentMonthIdx];
             document.getElementById('stats-month-name').innerText = monthName;
             const templateDays = initialShifts[monthName] || [];
-            let counts = { '🌅': 0, '🌆': 0, '🏖️': 0, '🤒': 0, 'OT': 0 };
+            let counts = { '🌅': 0, '🌆': 0, '🏖️': 0, 'OT': 0, '🤒': 0 };
             
             templateDays.forEach(d => {
                 const key = `2026-${currentMonthIdx}-${d.day}`;
@@ -445,10 +476,10 @@
             document.getElementById('count-tarde').innerText = counts['🌆'];
             document.getElementById('count-vaca').innerText = counts['🏖️'];
             document.getElementById('count-ot').innerText = counts['OT'];
+            document.getElementById('count-baja').innerText = counts['🤒'];
             
             let yearOT = 0;
             Object.values(userChanges).forEach(v => { if (v.isOT) yearOT += (v.otHours || 0); });
-
             document.getElementById('year-ot-hours').innerText = yearOT;
             document.getElementById('year-ot-remaining').innerText = Math.max(0, 80 - yearOT);
             document.getElementById('year-ot-progress').style.width = `${(yearOT / 80) * 100}%`;
@@ -462,11 +493,10 @@
         function renderControl() {
             const otList = document.getElementById('ot-list');
             const notesList = document.getElementById('notes-list');
-            otList.innerHTML = '<p class="text-slate-400 text-[10px] font-black uppercase mb-3 tracking-widest">Días con Overtime</p>';
-            notesList.innerHTML = '<p class="text-slate-400 text-[10px] font-black uppercase mb-3 tracking-widest">Notas del Periodo</p>';
+            otList.innerHTML = '<p class="text-slate-400 text-[10px] font-black uppercase mb-3 tracking-widest text-left">Horas Extra (Overtime)</p>';
+            notesList.innerHTML = '<p class="text-slate-400 text-[10px] font-black uppercase mb-3 tracking-widest text-left">Notas Guardadas</p>';
             
             let hasOT = false, hasNotes = false;
-
             Object.keys(userChanges).sort().forEach(key => {
                 const data = userChanges[key];
                 const parts = key.split('-');
@@ -475,7 +505,7 @@
                 if (data.isOT) {
                     hasOT = true;
                     const item = document.createElement('div');
-                    item.className = "flex justify-between items-center bg-blue-50 p-3 rounded-xl mb-2 border border-blue-100";
+                    item.className = "flex justify-between items-center bg-blue-50 p-4 rounded-2xl mb-2 border border-blue-100";
                     item.innerHTML = `<div><span class="text-xs font-black text-blue-800">${dateStr}</span></div><div class="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg">${data.otHours}h EXTRA</div>`;
                     otList.appendChild(item);
                 }
@@ -483,13 +513,13 @@
                 if (data.note) {
                     hasNotes = true;
                     const nItem = document.createElement('div');
-                    nItem.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-2";
+                    nItem.className = "bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 mb-2 text-left";
                     nItem.innerHTML = `<p class="text-[9px] font-black text-slate-400 uppercase mb-1">${dateStr}</p><p class="text-xs font-bold text-slate-700">${data.note}</p>`;
                     notesList.appendChild(nItem);
                 }
             });
-            if (!hasOT) otList.innerHTML += '<p class="text-xs text-slate-400 italic">No hay registros.</p>';
-            if (!hasNotes) notesList.innerHTML += '<p class="text-xs text-slate-400 italic">No hay notas.</p>';
+            if (!hasOT) otList.innerHTML += '<p class="text-xs text-slate-400 italic py-4">No hay registros de horas extra.</p>';
+            if (!hasNotes) notesList.innerHTML += '<p class="text-xs text-slate-400 italic py-4 text-center">No hay notas guardadas todavía.</p>';
         }
 
         function updateQuickStatus() {
@@ -497,9 +527,9 @@
             const key = `2026-${now.getMonth()}-${now.getDate()}`;
             const change = userChanges[key] || {};
             const type = change.type || (initialShifts[monthNames[now.getMonth()]].find(d => parseInt(d.day) === now.getDate())?.shift || '😴');
-            const map = { '🌅': 'Mañana', '🌆': 'Tarde', '😴': 'Libre', '🏖️': 'Vacas', '🤒': 'Baja', '🎉': 'Festivo' };
+            const map = { '🌅': 'Mañana', '🌆': 'Tarde', '😴': 'Libre', '🏖️': 'Vacaciones', '🤒': 'Baja', '🎉': 'Festivo', '📋': 'Permiso', '⚙️': 'Otro' };
             let text = map[type] || 'Libre';
-            if (change.isOT) text += " + OT";
+            if (change.isOT) text += " + Overtime";
             document.getElementById('next-shift').innerText = text;
         }
 
