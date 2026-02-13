@@ -8,54 +8,64 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
-        .day-card { transition: all 0.2s; cursor: pointer; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; user-select: none; }
+        .day-card { transition: all 0.2s; cursor: pointer; min-height: 60px; position: relative; overflow: hidden; }
         .day-card:active { transform: scale(0.95); }
-        .scroll-area { height: calc(100vh - 120px); overflow-y: auto; padding-bottom: 120px; }
+        .scroll-area { height: calc(100vh - 110px); overflow-y: auto; padding-bottom: 120px; }
         ::-webkit-scrollbar { width: 0; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center; padding: 20px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 50; align-items: flex-end; justify-content: center; }
         .modal.active { display: flex; }
-        .has-note::after { content: ''; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; }
+        .modal-content { background: #fff; border-radius: 30px 30px 0 0; w-full max-w-md p-6 transform: translateY(0); transition: transform 0.3s ease-out; }
+        .type-selector { border: 2px solid transparent; transition: all 0.2s; }
+        .type-selector.selected { border-color: #059669; background-color: #ecfdf5; }
+        .has-note-dot { position: absolute; bottom: 4px; right: 4px; width: 4px; height: 4px; background: #ef4444; border-radius: 50%; }
+        .status-badge { font-size: 8px; font-weight: 800; text-transform: uppercase; margin-top: 2px; }
     </style>
 </head>
 <body>
-    <div id="app" class="flex flex-col h-screen">
+    <div id="app" class="flex flex-col h-screen max-w-md mx-auto bg-white shadow-2xl">
         <!-- Header -->
-        <div class="bg-emerald-600 p-6 rounded-b-[30px] shadow-lg">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-calendar-alt text-white text-xl"></i>
+        <div class="bg-emerald-600 px-6 py-4 rounded-b-[35px] shadow-lg z-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-calendar-day text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-white font-bold text-lg leading-tight">Gestión OB1</h2>
+                        <p class="text-emerald-100 text-[10px] uppercase tracking-widest font-semibold">Amazon MAD9 • 2026</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-white font-bold text-xl">Grupo OB1</h2>
-                    <p class="text-emerald-100 text-sm">Amazon MAD9 • 2026</p>
+                <div class="text-right">
+                    <span id="work-days-count" class="text-white font-bold text-xl block leading-none">--</span>
+                    <span class="text-emerald-100 text-[8px] uppercase font-bold">días trabajo</span>
                 </div>
             </div>
         </div>
 
         <!-- Month Selector -->
-        <div class="flex justify-between items-center px-8 py-4">
-            <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+        <div class="flex justify-between items-center px-6 py-4 bg-white">
+            <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 shadow-sm">
                 <i class="fas fa-chevron-left"></i>
             </button>
             <div class="text-center">
                 <span id="month-name" class="block text-xl font-bold text-slate-800">Enero</span>
-                <span class="text-slate-400 text-xs font-bold uppercase tracking-wider">2026</span>
+                <span class="text-emerald-600 text-[10px] font-black uppercase tracking-tighter italic">Personalizado</span>
             </div>
-            <button onclick="changeMonth(1)" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+            <button onclick="changeMonth(1)" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 shadow-sm">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
 
         <!-- Day Headers -->
         <div class="grid grid-cols-7 gap-1 px-4 mb-2">
-            <div class="text-center text-[10px] font-bold text-slate-400">LUN</div>
-            <div class="text-center text-[10px] font-bold text-slate-400">MAR</div>
-            <div class="text-center text-[10px] font-bold text-slate-400">MIÉ</div>
-            <div class="text-center text-[10px] font-bold text-slate-400">JUE</div>
-            <div class="text-center text-[10px] font-bold text-slate-400">VIE</div>
-            <div class="text-center text-[10px] font-bold text-slate-400">SÁB</div>
-            <div class="text-center text-[10px] font-bold text-slate-400">DOM</div>
+            <div class="text-center text-[9px] font-black text-slate-400">LU</div>
+            <div class="text-center text-[9px] font-black text-slate-400">MA</div>
+            <div class="text-center text-[9px] font-black text-slate-400">MI</div>
+            <div class="text-center text-[9px] font-black text-slate-400">JU</div>
+            <div class="text-center text-[9px] font-black text-slate-400">VI</div>
+            <div class="text-center text-[9px] font-black text-red-400 font-bold">SÁ</div>
+            <div class="text-center text-[9px] font-black text-red-400 font-bold">DO</div>
         </div>
 
         <!-- Calendar Grid -->
@@ -64,56 +74,95 @@
                 <!-- Days will be injected here -->
             </div>
 
-            <!-- Legend -->
-            <div class="mt-8 flex flex-wrap justify-center gap-3 pb-10">
-                <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
-                    <div class="w-2 h-2 rounded-full bg-amber-400"></div>
-                    <span class="text-[10px] font-semibold text-slate-600 uppercase">Mañana</span>
+            <!-- Legend Info -->
+            <div class="mt-8 grid grid-cols-2 gap-2 pb-10 px-2">
+                <div class="flex items-center gap-2 p-2 bg-white rounded-xl shadow-sm border border-slate-100">
+                    <div class="w-3 h-3 rounded-full bg-amber-400 shadow-sm"></div>
+                    <span class="text-[10px] font-bold text-slate-600 uppercase">Mañana</span>
                 </div>
-                <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
-                    <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                    <span class="text-[10px] font-semibold text-slate-600 uppercase">Tarde</span>
+                <div class="flex items-center gap-2 p-2 bg-white rounded-xl shadow-sm border border-slate-100">
+                    <div class="w-3 h-3 rounded-full bg-indigo-500 shadow-sm"></div>
+                    <span class="text-[10px] font-bold text-slate-600 uppercase">Tarde</span>
                 </div>
-                <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
-                    <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                    <span class="text-[10px] font-semibold text-slate-600 uppercase">Libre</span>
+                <div class="flex items-center gap-2 p-2 bg-white rounded-xl shadow-sm border border-slate-100">
+                    <div class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></div>
+                    <span class="text-[10px] font-bold text-slate-600 uppercase">Vacaciones</span>
                 </div>
-                <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
-                    <div class="w-2 h-2 rounded-full bg-red-400"></div>
-                    <span class="text-[10px] font-semibold text-slate-600 uppercase">Festivo</span>
+                <div class="flex items-center gap-2 p-2 bg-white rounded-xl shadow-sm border border-slate-100">
+                    <div class="w-3 h-3 rounded-full bg-rose-500 shadow-sm"></div>
+                    <span class="text-[10px] font-bold text-slate-600 uppercase">Baja Médica</span>
                 </div>
             </div>
         </div>
 
-        <!-- Footer Action -->
+        <!-- Bottom Banner -->
         <div class="fixed bottom-6 left-6 right-6">
-            <div class="bg-slate-900/90 backdrop-blur p-4 rounded-2xl flex items-center justify-between shadow-2xl">
+            <div class="bg-slate-900 p-4 rounded-2xl flex items-center justify-between shadow-2xl border-t border-white/10">
                 <div class="flex flex-col">
-                    <span class="text-slate-400 text-[10px] font-bold uppercase tracking-tighter">Estado de hoy</span>
-                    <span id="next-shift" class="text-white font-bold text-sm">Cargando...</span>
+                    <span id="day-status-label" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Hoy</span>
+                    <span id="next-shift" class="text-white font-black text-sm tracking-tight">Cargando...</span>
                 </div>
-                <i class="fas fa-bolt text-amber-400"></i>
+                <button onclick="renderCalendar()" class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+                    <i class="fas fa-sync-alt text-xs"></i>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Note Modal -->
-    <div id="note-modal" class="modal">
-        <div class="bg-white rounded-[30px] w-full max-w-sm p-6 shadow-2xl">
-            <h3 id="modal-date" class="text-xl font-bold text-slate-800 mb-1">Día 15 de Febrero</h3>
-            <p id="modal-shift" class="text-sm text-slate-500 mb-4 uppercase font-semibold">Turno de Tarde</p>
-            
-            <textarea id="note-input" class="w-full h-32 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 text-slate-700 mb-4" placeholder="Escribe una nota para este día..."></textarea>
-            
-            <div class="flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancelar</button>
-                <button onclick="saveNote()" class="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-xl">Guardar</button>
+    <!-- Edit Day Modal -->
+    <div id="edit-modal" class="modal" onclick="if(event.target == this) closeModal()">
+        <div class="modal-content w-full">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 id="modal-date" class="text-2xl font-black text-slate-900 tracking-tighter">15 Febrero</h3>
+                    <p class="text-slate-500 text-xs font-bold uppercase">Estado y Notas del día</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-slate-500"><i class="fas fa-times-circle fa-2x"></i></button>
             </div>
+            
+            <div class="mb-6">
+                <p class="text-slate-400 text-[10px] font-black uppercase mb-3 tracking-widest">Cambiar Estado</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setDayType('🌅')" id="btn-M" class="type-selector p-3 rounded-2xl bg-amber-50 flex flex-col items-center gap-1">
+                        <i class="fas fa-sun text-amber-500"></i>
+                        <span class="text-[9px] font-black text-amber-700">MAÑANA</span>
+                    </button>
+                    <button onclick="setDayType('🌆')" id="btn-T" class="type-selector p-3 rounded-2xl bg-indigo-50 flex flex-col items-center gap-1">
+                        <i class="fas fa-moon text-indigo-600"></i>
+                        <span class="text-[9px] font-black text-indigo-700">TARDE</span>
+                    </button>
+                    <button onclick="setDayType('😴')" id="btn-L" class="type-selector p-3 rounded-2xl bg-slate-50 flex flex-col items-center gap-1">
+                        <i class="fas fa-coffee text-slate-400"></i>
+                        <span class="text-[9px] font-black text-slate-600">LIBRE</span>
+                    </button>
+                    <button onclick="setDayType('🏖️')" id="btn-V" class="type-selector p-3 rounded-2xl bg-emerald-50 flex flex-col items-center gap-1">
+                        <i class="fas fa-umbrella-beach text-emerald-600"></i>
+                        <span class="text-[9px] font-black text-emerald-700">VACAS</span>
+                    </button>
+                    <button onclick="setDayType('🤒')" id="btn-B" class="type-selector p-3 rounded-2xl bg-rose-50 flex flex-col items-center gap-1">
+                        <i class="fas fa-hand-holding-medical text-rose-500"></i>
+                        <span class="text-[9px] font-black text-rose-700">BAJA</span>
+                    </button>
+                    <button onclick="setDayType('🎉')" id="btn-F" class="type-selector p-3 rounded-2xl bg-red-50 flex flex-col items-center gap-1">
+                        <i class="fas fa-birthday-cake text-red-500"></i>
+                        <span class="text-[9px] font-black text-red-700">FESTIVO</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <p class="text-slate-400 text-[10px] font-black uppercase mb-3 tracking-widest">Nota Personal</p>
+                <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="Escribe aquí cualquier detalle..."></textarea>
+            </div>
+            
+            <button onclick="saveChanges()" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl shadow-slate-900/30 active:scale-95 transition-transform">
+                GUARDAR CAMBIOS
+            </button>
         </div>
     </div>
 
     <script>
-        const shiftsData = {
+        const initialShifts = {
           "Enero": [{"day":"1","shift":"🎉"},{"day":"2","shift":"😴"},{"day":"3","shift":"😴"},{"day":"4","shift":"😴"},{"day":"5","shift":"😴"},{"day":"6","shift":"🎉"},{"day":"7","shift":"🌆"},{"day":"8","shift":"🌆"},{"day":"9","shift":"😴"},{"day":"10","shift":"🌅"},{"day":"11","shift":"🌅"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"🌅"},{"day":"16","shift":"🌅"},{"day":"17","shift":"😴"},{"day":"18","shift":"😴"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"🌆"},{"day":"22","shift":"🌆"},{"day":"23","shift":"🌆"},{"day":"24","shift":"😴"},{"day":"25","shift":"😴"},{"day":"26","shift":"😴"},{"day":"27","shift":"🌅"},{"day":"28","shift":"🌅"},{"day":"29","shift":"🌅"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌆"}],
           "Febrero": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"😴"},{"day":"16","shift":"🌆"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🏖️"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"😴"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"}],
           "Marzo": [{"day":"1","shift":"🌆"},{"day":"2","shift":"🌆"},{"day":"3","shift":"🌆"},{"day":"4","shift":"🌆"},{"day":"5","shift":"😴"},{"day":"6","shift":"😴"},{"day":"7","shift":"🌅"},{"day":"8","shift":"🌅"},{"day":"9","shift":"🌅"},{"day":"10","shift":"🌅"},{"day":"11","shift":"😴"},{"day":"12","shift":"🌅"},{"day":"13","shift":"🌅"},{"day":"14","shift":"😴"},{"day":"15","shift":"😴"},{"day":"16","shift":"😴"},{"day":"17","shift":"🌆"},{"day":"18","shift":"🌆"},{"day":"19","shift":"🌆"},{"day":"20","shift":"🌆"},{"day":"21","shift":"😴"},{"day":"22","shift":"😴"},{"day":"23","shift":"🌅"},{"day":"24","shift":"🌅"},{"day":"25","shift":"🌅"},{"day":"26","shift":"🌅"},{"day":"27","shift":"😴"},{"day":"28","shift":"🌆"},{"day":"29","shift":"🌆"},{"day":"30","shift":"😴"},{"day":"31","shift":"🌆"}],
@@ -131,15 +180,14 @@
         const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         let currentMonthIdx = new Date().getMonth();
         let selectedDayKey = '';
+        let currentSelectedType = '';
 
-        function getFirstDayOfMonth(monthIdx, year) {
-            return new Date(year, monthIdx, 1).getDay(); // 0 (Dom) to 6 (Sab)
-        }
+        // Persistent data: we store user modifications separate from the master template
+        let userChanges = JSON.parse(localStorage.getItem('ob1_user_changes') || '{}');
 
-        // Convert 0-6 (D-S) to 0-6 (L-D)
         function getAdjustedFirstDay(monthIdx) {
-            let day = getFirstDayOfMonth(monthIdx, 2026);
-            return day === 0 ? 6 : day - 1; // Lunes = 0, Domingo = 6
+            let day = new Date(2026, monthIdx, 1).getDay();
+            return day === 0 ? 6 : day - 1; // Lunes = 0
         }
 
         function renderCalendar() {
@@ -149,61 +197,79 @@
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
             
-            // Add empty spaces for alignment
             const firstDay = getAdjustedFirstDay(currentMonthIdx);
             for (let i = 0; i < firstDay; i++) {
-                const empty = document.createElement('div');
-                grid.appendChild(empty);
+                grid.appendChild(document.createElement('div'));
             }
 
-            const days = shiftsData[monthName] || [];
-            const notes = JSON.parse(localStorage.getItem('ob1_notes') || '{}');
+            const templateDays = initialShifts[monthName] || [];
+            let workDays = 0;
 
-            days.forEach(d => {
-                const dayKey = `${monthName}-${d.day}`;
+            templateDays.forEach(d => {
+                const dayKey = `2026-${currentMonthIdx}-${d.day}`;
+                const change = userChanges[dayKey] || {};
+                const shift = change.type || d.shift;
+                const note = change.note || "";
+
                 const card = document.createElement('div');
                 let bgColor = 'bg-white';
                 let icon = '';
-                let iconColor = 'text-slate-300';
-                let shiftName = 'Libre';
+                let iconColor = 'text-slate-200';
+                let statusText = 'LIBRE';
 
-                if (d.shift === '🌅') { bgColor = 'bg-amber-50'; icon = 'fa-sun'; iconColor = 'text-amber-500'; shiftName = 'Mañana'; }
-                else if (d.shift === '🌆') { bgColor = 'bg-indigo-50'; icon = 'fa-moon'; iconColor = 'text-indigo-600'; shiftName = 'Tarde'; }
-                else if (d.shift === '😴') { bgColor = 'bg-slate-50'; icon = 'fa-coffee'; iconColor = 'text-slate-400'; shiftName = 'Libre'; }
-                else if (d.shift === '🎉') { bgColor = 'bg-red-50'; icon = 'fa-birthday-cake'; iconColor = 'text-red-500'; shiftName = 'Festivo'; }
-                else if (d.shift === '🏖️') { bgColor = 'bg-emerald-50'; icon = 'fa-umbrella-beach'; iconColor = 'text-emerald-500'; shiftName = 'Vacaciones'; }
+                if (shift === '🌅') { bgColor = 'bg-amber-50'; icon = 'fa-sun'; iconColor = 'text-amber-500'; statusText = 'MAÑANA'; workDays++; }
+                else if (shift === '🌆') { bgColor = 'bg-indigo-50'; icon = 'fa-moon'; iconColor = 'text-indigo-600'; statusText = 'TARDE'; workDays++; }
+                else if (shift === '😴') { bgColor = 'bg-slate-50'; icon = 'fa-coffee'; iconColor = 'text-slate-400'; }
+                else if (shift === '🎉') { bgColor = 'bg-red-50'; icon = 'fa-birthday-cake'; iconColor = 'text-red-500'; statusText = 'FESTIVO'; }
+                else if (shift === '🏖️') { bgColor = 'bg-emerald-50'; icon = 'fa-umbrella-beach'; iconColor = 'text-emerald-500'; statusText = 'VACAS'; }
+                else if (shift === '🤒') { bgColor = 'bg-rose-50'; icon = 'fa-hand-holding-medical'; iconColor = 'text-rose-500'; statusText = 'BAJA'; }
 
-                card.className = `day-card relative aspect-square ${bgColor} rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100 ${notes[dayKey] ? 'has-note' : ''}`;
-                card.onclick = () => openNoteModal(dayKey, d.day, monthName, shiftName);
-                card.innerHTML = `<span class="text-xs font-bold text-slate-800 mb-1">${d.day}</span><i class="fas ${icon} ${iconColor} text-sm"></i>`;
+                card.className = `day-card relative ${bgColor} rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100`;
+                card.onclick = () => openEditModal(dayKey, d.day, monthName, shift, note);
+                
+                card.innerHTML = `
+                    <span class="text-[10px] font-black text-slate-800 absolute top-2 left-2">${d.day}</span>
+                    <i class="fas ${icon} ${iconColor} text-lg mb-1"></i>
+                    <span class="status-badge ${iconColor}">${statusText}</span>
+                    ${note ? '<div class="has-note-dot"></div>' : ''}
+                `;
                 grid.appendChild(card);
             });
 
-            updateNextShift();
+            document.getElementById('work-days-count').innerText = workDays;
+            updateStatusLabel();
         }
 
-        function openNoteModal(key, day, month, shift) {
+        function openEditModal(key, day, month, type, note) {
             selectedDayKey = key;
+            currentSelectedType = type;
             document.getElementById('modal-date').innerText = `${day} de ${month}`;
-            document.getElementById('modal-shift').innerText = `Turno: ${shift}`;
-            const notes = JSON.parse(localStorage.getItem('ob1_notes') || '{}');
-            document.getElementById('note-input').value = notes[key] || '';
-            document.getElementById('note-modal').classList.add('active');
+            document.getElementById('note-input').value = note;
+            
+            // Highlight selected type
+            document.querySelectorAll('.type-selector').forEach(btn => btn.classList.remove('selected'));
+            const typeMap = { '🌅': 'btn-M', '🌆': 'btn-T', '😴': 'btn-L', '🏖️': 'btn-V', '🤒': 'btn-B', '🎉': 'btn-F' };
+            const activeBtn = document.getElementById(typeMap[type]);
+            if (activeBtn) activeBtn.classList.add('selected');
+
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function setDayType(type) {
+            currentSelectedType = type;
+            document.querySelectorAll('.type-selector').forEach(btn => btn.classList.remove('selected'));
+            const typeMap = { '🌅': 'btn-M', '🌆': 'btn-T', '😴': 'btn-L', '🏖️': 'btn-V', '🤒': 'btn-B', '🎉': 'btn-F' };
+            document.getElementById(typeMap[type]).classList.add('selected');
         }
 
         function closeModal() {
-            document.getElementById('note-modal').classList.remove('active');
+            document.getElementById('edit-modal').classList.remove('active');
         }
 
-        function saveNote() {
+        function saveChanges() {
             const note = document.getElementById('note-input').value;
-            const notes = JSON.parse(localStorage.getItem('ob1_notes') || '{}');
-            if (note.trim()) {
-                notes[selectedDayKey] = note;
-            } else {
-                delete notes[selectedDayKey];
-            }
-            localStorage.setItem('ob1_notes', JSON.stringify(notes));
+            userChanges[selectedDayKey] = { type: currentSelectedType, note: note };
+            localStorage.setItem('ob1_user_changes', JSON.stringify(userChanges));
             closeModal();
             renderCalendar();
         }
@@ -215,19 +281,23 @@
             renderCalendar();
         }
 
-        function updateNextShift() {
+        function updateStatusLabel() {
             const today = new Date();
-            const day = today.getDate();
-            const month = monthNames[today.getMonth()];
-            const monthData = shiftsData[month];
+            const dayKey = `2026-${today.getMonth()}-${today.getDate()}`;
+            const monthName = monthNames[today.getMonth()];
+            const template = initialShifts[monthName] ? initialShifts[monthName].find(d => parseInt(d.day) === today.getDate()) : null;
             
-            if (monthData) {
-                const todayShift = monthData.find(d => parseInt(d.day) === day);
-                if (todayShift) {
-                    let name = todayShift.shift === '🌅' ? 'Mañana' : todayShift.shift === '🌆' ? 'Tarde' : todayShift.shift === '😴' ? 'Libre' : 'Festivo';
-                    document.getElementById('next-shift').innerText = `${name} (${day} ${month})`;
-                }
-            }
+            const change = userChanges[dayKey] || {};
+            const shift = change.type || (template ? template.shift : '😴');
+            
+            let name = 'Libre';
+            if (shift === '🌅') name = 'Turno de Mañana';
+            else if (shift === '🌆') name = 'Turno de Tarde';
+            else if (shift === '🏖️') name = 'Vacaciones';
+            else if (shift === '🤒') name = 'Baja Médica';
+            else if (shift === '🎉') name = 'Festivo';
+
+            document.getElementById('next-shift').innerText = `${name}`;
         }
 
         renderCalendar();
