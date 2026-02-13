@@ -242,12 +242,9 @@
             list.innerHTML = '';
             Object.keys(userChanges).sort().forEach(key => {
                 const data = userChanges[key]; const parts = key.split('-'); const dateStr = parts[2] + ' de ' + monthNames[parts[1]];
-                if (data.isOT || data.note) {
-                    const item = document.createElement('div');
-                    item.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-3 text-left";
-                    item.innerHTML = '<p class="text-[9px] font-black text-slate-400 uppercase mb-1">' + dateStr + '</p>' +
-                        (data.isOT ? '<p class="text-xs font-black text-blue-600 uppercase italic">Overtime: ' + data.otHours + 'h</p>' : '') +
-                        (data.note ? '<p class="text-xs font-bold text-slate-700">' + data.note + '</p>' : '');
+                if (data.isOT) {
+                    hasOT = true; const item = document.createElement('div'); item.className = "flex justify-between items-center bg-blue-50 p-4 rounded-2xl mb-2";
+                    item.innerHTML = '<div><span class="text-xs font-black text-blue-800">' + dateStr + '</span></div><div class="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg">' + data.otHours + 'h EXTRA</div>';
                     list.appendChild(item);
                 }
             });
