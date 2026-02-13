@@ -9,10 +9,13 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
-        .day-card { transition: transform 0.2s; }
+        .day-card { transition: all 0.2s; cursor: pointer; }
         .day-card:active { transform: scale(0.95); }
-        .scroll-area { height: calc(100vh - 120px); overflow-y: auto; padding-bottom: 80px; }
+        .scroll-area { height: calc(100vh - 120px); overflow-y: auto; padding-bottom: 120px; }
         ::-webkit-scrollbar { width: 0; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .has-note::after { content: ''; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; }
     </style>
 </head>
 <body>
@@ -31,50 +34,80 @@
         </div>
 
         <!-- Month Selector -->
-        <div class="flex justify-between items-center px-8 py-6">
-            <button onclick="changeMonth(-1)" class="w-12 h-12 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
-                <i class="fas fa-chevron-left fa-lg"></i>
+        <div class="flex justify-between items-center px-8 py-4">
+            <button onclick="changeMonth(-1)" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+                <i class="fas fa-chevron-left"></i>
             </button>
             <div class="text-center">
-                <span id="month-name" class="block text-2xl font-bold text-slate-800">Enero</span>
-                <span class="text-slate-400 text-sm">2026</span>
+                <span id="month-name" class="block text-xl font-bold text-slate-800">Enero</span>
+                <span class="text-slate-400 text-xs font-bold uppercase tracking-wider">2026</span>
             </div>
-            <button onclick="changeMonth(1)" class="w-12 h-12 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
-                <i class="fas fa-chevron-right fa-lg"></i>
+            <button onclick="changeMonth(1)" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+                <i class="fas fa-chevron-right"></i>
             </button>
+        </div>
+
+        <!-- Day Headers -->
+        <div class="grid grid-cols-7 gap-1 px-4 mb-2">
+            <div class="text-center text-[10px] font-bold text-slate-400">LUN</div>
+            <div class="text-center text-[10px] font-bold text-slate-400">MAR</div>
+            <div class="text-center text-[10px] font-bold text-slate-400">MIÉ</div>
+            <div class="text-center text-[10px] font-bold text-slate-400">JUE</div>
+            <div class="text-center text-[10px] font-bold text-slate-400">VIE</div>
+            <div class="text-center text-[10px] font-bold text-slate-400">SÁB</div>
+            <div class="text-center text-[10px] font-bold text-slate-400">DOM</div>
         </div>
 
         <!-- Calendar Grid -->
         <div class="scroll-area px-4">
-            <div id="calendar-grid" class="grid grid-cols-4 gap-3">
+            <div id="calendar-grid" class="grid grid-cols-7 gap-2">
                 <!-- Days will be injected here -->
             </div>
 
             <!-- Legend -->
-            <div class="mt-8 flex flex-wrap justify-center gap-4 pb-20">
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 bg-amber-50 rounded-md flex items-center justify-center"><i class="fas fa-sun text-[10px] text-amber-500"></i></div>
-                    <span class="text-xs font-medium text-slate-600">Mañana</span>
+            <div class="mt-8 flex flex-wrap justify-center gap-3 pb-10">
+                <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
+                    <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+                    <span class="text-[10px] font-semibold text-slate-600 uppercase">Mañana</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 bg-indigo-50 rounded-md flex items-center justify-center"><i class="fas fa-moon text-[10px] text-indigo-600"></i></div>
-                    <span class="text-xs font-medium text-slate-600">Tarde</span>
+                <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                    <span class="text-[10px] font-semibold text-slate-600 uppercase">Tarde</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 bg-slate-100 rounded-md flex items-center justify-center"><i class="fas fa-coffee text-[10px] text-slate-400"></i></div>
-                    <span class="text-xs font-medium text-slate-600">Libre</span>
+                <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
+                    <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                    <span class="text-[10px] font-semibold text-slate-600 uppercase">Libre</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 bg-red-50 rounded-md flex items-center justify-center"><i class="fas fa-birthday-cake text-[10px] text-red-500"></i></div>
-                    <span class="text-xs font-medium text-slate-600">Festivo</span>
+                <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
+                    <div class="w-2 h-2 rounded-full bg-red-400"></div>
+                    <span class="text-[10px] font-semibold text-slate-600 uppercase">Festivo</span>
                 </div>
             </div>
         </div>
 
         <!-- Footer Action -->
         <div class="fixed bottom-6 left-6 right-6">
-            <div class="bg-slate-800 p-4 rounded-2xl flex items-center justify-center shadow-2xl">
-                <span id="next-shift" class="text-white font-bold text-sm">Próximo turno: Cargando...</span>
+            <div class="bg-slate-900/90 backdrop-blur p-4 rounded-2xl flex items-center justify-between shadow-2xl">
+                <div class="flex flex-col">
+                    <span class="text-slate-400 text-[10px] font-bold uppercase tracking-tighter">Estado de hoy</span>
+                    <span id="next-shift" class="text-white font-bold text-sm">Cargando...</span>
+                </div>
+                <i class="fas fa-bolt text-amber-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Modal -->
+    <div id="note-modal" class="modal">
+        <div class="bg-white rounded-[30px] w-full max-w-sm p-6 shadow-2xl">
+            <h3 id="modal-date" class="text-xl font-bold text-slate-800 mb-1">Día 15 de Febrero</h3>
+            <p id="modal-shift" class="text-sm text-slate-500 mb-4 uppercase font-semibold">Turno de Tarde</p>
+            
+            <textarea id="note-input" class="w-full h-32 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 text-slate-700 mb-4" placeholder="Escribe una nota para este día..."></textarea>
+            
+            <div class="flex gap-3">
+                <button onclick="closeModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl">Cancelar</button>
+                <button onclick="saveNote()" class="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-xl">Guardar</button>
             </div>
         </div>
     </div>
@@ -97,6 +130,17 @@
 
         const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         let currentMonthIdx = new Date().getMonth();
+        let selectedDayKey = '';
+
+        function getFirstDayOfMonth(monthIdx, year) {
+            return new Date(year, monthIdx, 1).getDay(); // 0 (Dom) to 6 (Sab)
+        }
+
+        // Convert 0-6 (D-S) to 0-6 (L-D)
+        function getAdjustedFirstDay(monthIdx) {
+            let day = getFirstDayOfMonth(monthIdx, 2026);
+            return day === 0 ? 6 : day - 1; // Lunes = 0, Domingo = 6
+        }
 
         function renderCalendar() {
             const monthName = monthNames[currentMonthIdx];
@@ -105,25 +149,63 @@
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
             
+            // Add empty spaces for alignment
+            const firstDay = getAdjustedFirstDay(currentMonthIdx);
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+
             const days = shiftsData[monthName] || [];
-            
+            const notes = JSON.parse(localStorage.getItem('ob1_notes') || '{}');
+
             days.forEach(d => {
+                const dayKey = `${monthName}-${d.day}`;
                 const card = document.createElement('div');
-                let bgColor = 'bg-slate-50';
+                let bgColor = 'bg-white';
                 let icon = '';
-                let iconColor = 'text-slate-400';
+                let iconColor = 'text-slate-300';
+                let shiftName = 'Libre';
 
-                if (d.shift === '🌅') { bgColor = 'bg-amber-50'; icon = 'fa-sun'; iconColor = 'text-amber-500'; }
-                else if (d.shift === '🌆') { bgColor = 'bg-indigo-50'; icon = 'fa-moon'; iconColor = 'text-indigo-600'; }
-                else if (d.shift === '😴') { bgColor = 'bg-slate-100'; icon = 'fa-coffee'; iconColor = 'text-slate-400'; }
-                else if (d.shift === '🎉') { bgColor = 'bg-red-50'; icon = 'fa-birthday-cake'; iconColor = 'text-red-500'; }
+                if (d.shift === '🌅') { bgColor = 'bg-amber-50'; icon = 'fa-sun'; iconColor = 'text-amber-500'; shiftName = 'Mañana'; }
+                else if (d.shift === '🌆') { bgColor = 'bg-indigo-50'; icon = 'fa-moon'; iconColor = 'text-indigo-600'; shiftName = 'Tarde'; }
+                else if (d.shift === '😴') { bgColor = 'bg-slate-50'; icon = 'fa-coffee'; iconColor = 'text-slate-400'; shiftName = 'Libre'; }
+                else if (d.shift === '🎉') { bgColor = 'bg-red-50'; icon = 'fa-birthday-cake'; iconColor = 'text-red-500'; shiftName = 'Festivo'; }
+                else if (d.shift === '🏖️') { bgColor = 'bg-emerald-50'; icon = 'fa-umbrella-beach'; iconColor = 'text-emerald-500'; shiftName = 'Vacaciones'; }
 
-                card.className = `day-card aspect-square ${bgColor} rounded-2xl flex flex-col items-center justify-center shadow-sm`;
-                card.innerHTML = `<span class="font-bold text-slate-800 mb-1">${d.day}</span><i class="fas ${icon} ${iconColor}"></i>`;
+                card.className = `day-card relative aspect-square ${bgColor} rounded-2xl flex flex-col items-center justify-center shadow-sm border border-slate-100 ${notes[dayKey] ? 'has-note' : ''}`;
+                card.onclick = () => openNoteModal(dayKey, d.day, monthName, shiftName);
+                card.innerHTML = `<span class="text-xs font-bold text-slate-800 mb-1">${d.day}</span><i class="fas ${icon} ${iconColor} text-sm"></i>`;
                 grid.appendChild(card);
             });
 
             updateNextShift();
+        }
+
+        function openNoteModal(key, day, month, shift) {
+            selectedDayKey = key;
+            document.getElementById('modal-date').innerText = `${day} de ${month}`;
+            document.getElementById('modal-shift').innerText = `Turno: ${shift}`;
+            const notes = JSON.parse(localStorage.getItem('ob1_notes') || '{}');
+            document.getElementById('note-input').value = notes[key] || '';
+            document.getElementById('note-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('note-modal').classList.remove('active');
+        }
+
+        function saveNote() {
+            const note = document.getElementById('note-input').value;
+            const notes = JSON.parse(localStorage.getItem('ob1_notes') || '{}');
+            if (note.trim()) {
+                notes[selectedDayKey] = note;
+            } else {
+                delete notes[selectedDayKey];
+            }
+            localStorage.setItem('ob1_notes', JSON.stringify(notes));
+            closeModal();
+            renderCalendar();
         }
 
         function changeMonth(step) {
@@ -142,8 +224,8 @@
             if (monthData) {
                 const todayShift = monthData.find(d => parseInt(d.day) === day);
                 if (todayShift) {
-                    let name = todayShift.shift === '🌅' ? 'Mañana' : todayShift.shift === '🌆' ? 'Tarde' : 'Libre';
-                    document.getElementById('next-shift').innerText = `Hoy: ${name} (${day} ${month})`;
+                    let name = todayShift.shift === '🌅' ? 'Mañana' : todayShift.shift === '🌆' ? 'Tarde' : todayShift.shift === '😴' ? 'Libre' : 'Festivo';
+                    document.getElementById('next-shift').innerText = `${name} (${day} ${month})`;
                 }
             }
         }
